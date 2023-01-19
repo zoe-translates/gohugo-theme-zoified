@@ -29,10 +29,10 @@
   other = 'Page not found'
 
 [404_description]
-  other = "Sorry, we've misplaced that URL or it's pointing to something that doesn't exist."
+  other = "Sorry, we’ve misplaced that URL, or it’s pointing to something that doesn’t exist."
 
 [404_back]
-  other = 'Head back home to try finding it again'
+  other = 'Please head back home to try finding it again'
 
 [by]
   other = 'by {{ . }}'
@@ -50,7 +50,7 @@
   other = 'Contents'
 
 [search_help]
-  other = "To search the site, enter a search term."
+  other = "Please enter a search term:"
 
 [search_site]
   other = 'Search site'
@@ -62,7 +62,11 @@
   other = 'Found results:'
 
 [tag_cloud]
-  other = 'Tag Cloud'
+  other = 'Tag cloud'
+
+[tag_prompt]
+  one = 'Tag'
+  other = 'Tags'
 
 [back_to_top]
   other = 'Back to top'
