@@ -1,7 +1,5 @@
-<span class="post-meta">
-    <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
-        {{- .Date | time.Format (site.Params.dateFormatToc | default "2006.01.02") }}
-    </time>
-</span>
-
-<a href="{{ .Permalink }}">{{ .Title }} </a>
+<div class="toc-item-container">
+  <div class="post-meta"><time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{- .Date | time.Format (site.Params.dateFormatToc | default "2006.01.02") -}}</time></div>
+  <div class="toc-item-link"><a href="{{ .RelPermalink }}">{{ .Title }}</a></div>
+  <div class="toc-label">{{- if eq .Section "translations" -}}translation{{- else if eq .Section "original-works" -}}original work{{- else -}}blog post{{- end -}}</div>
+</div>

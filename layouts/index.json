@@ -30,6 +30,11 @@
             {{ $modifiedDate = $publishDate -}}
           {{- end -}}
 
+	  {{- $pageauth := "" -}}
+	  {{- if and (eq $page.Section "translations") $page.Params.author -}}
+	    {{- $pageauth = printf "By %s" $page.Params.author -}}
+	  {{- end -}}
+
           {{- $pageData := (dict
             "objectID" $page.File.UniqueID
             "title" $page.Title
@@ -39,10 +44,11 @@
             "kind" $page.Kind
             "type" $page.Type
             "section" $page.Section
-            "content" (trim $page.Plain "\n ")
+            "content" (trim (printf "%s\n%s" $pageauth $page.Plain) "\n ")
             "publishDate" $publishDate
             "lastmod" $modifiedDate
           ) -}}
+
 
           {{- $.Scratch.Add "pagesIndex" $pageData -}}
           {{- $.Scratch.Add "urlsAdded" $page.Permalink -}}

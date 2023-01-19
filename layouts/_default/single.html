@@ -8,8 +8,9 @@
         <p class="byline">
             {{ if in (slice "drama" "narrative" "poem") $postType }}
                 {{ partial "post-meta/author.html" . }}
+		{{ partial "post-meta/translator.html" . }}
             {{ else }}
-                {{ partial "post-meta/date.html" . }}
+                {{ partial "post-meta/author.html" . }}
             {{ end }}
         </p>
     </header>
@@ -18,9 +19,13 @@
         {{ .Content }}
     </div>
 
-    {{/* Post tags are not allowed for drama, narratives and poems */}}
-    {{ if not (in (slice "drama" "narrative" "poem") $postType) }}
-        {{ partial "post-tags.html" . }}
-    {{ end }}
+    <footer class="page-footer">
+    {{- if eq $postType "site-function-page" | not -}}
+    <div class="page-date-slug">{{- partial "post-meta/date.html" . -}}</div>
+    {{- end -}}
+    {{- if not (in (slice "drama" "narrative" "poem" "site-function-page") $postType) -}}
+        {{- partial "post-tags.html" . -}}
+    {{- end -}}
+    </footer>
 </article>
 {{ end }}

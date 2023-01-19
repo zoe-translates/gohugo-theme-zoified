@@ -3,7 +3,7 @@
 {{ $mainSections := site.Params.mainSections | default (slice "posts") }}
 
 {{/* Create a variable with that section to use in multiple places. */}}
-{{ $section := where site.RegularPages.ByDate.Reverse "Section" "in" $mainSections }}
+{{ $section := where site.RegularPages.ByDate.Reverse "Type" "in" $mainSections }}
 
 {{/* Check to see if the section is defined for ranging through it */}}
 {{ $sectionCount := len $section }}

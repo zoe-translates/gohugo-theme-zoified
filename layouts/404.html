@@ -1,17 +1,10 @@
 {{ define "main" }}
-
 <section class="introduction">
     <div class="container">
         <h1 class="accent">404</h1>
-        <p><strong>{{ i18n "404_title" }}</strong></p>
+        <p>{{ i18n "404_title" }}</p>
     </div>
-
     <p>{{ i18n "404_description" }}</p>
-    <p><a href="{{ "/" | relURL }}">{{ i18n "404_back" }} </a>.</p>
+    <p><a href="/">{{ i18n "404_back" }} </a>, or use the <a href="/search">search</a> form.</p>
 </section>
-
-<hr>
-
-{{- partial "mini-toc" . -}}
-
 {{ end }}

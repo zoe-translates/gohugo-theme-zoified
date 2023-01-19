@@ -1,0 +1,6 @@
+{{- if .Params.author -}}
+    <br>
+{{ end }}
+{{ with .Params.translator }}
+    <span class="author">translated by {{ . }}</span>
+{{ end }}
