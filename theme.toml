@@ -1,13 +1,13 @@
-name = "Ed"
+name = "Zoified"
 license = "MIT"
-licenselink = "https://github.com/sergeyklay/gohugo-theme-ed/blob/master/LICENSE"
-description = "Ed theme for minimal editions, based on Alex Gil theme"
+licenselink = "https://github.com/zoe-translates/hugo-theme-zoified/blob/main/LICENSE"
+description = "Ed theme for minimal editions, based on Alex Gil theme, with modifications specially crafted for zoe-translat.es"
 
 # The home page of the theme, where the source can be found.
-homepage = "https://github.com/sergeyklay/gohugo-theme-ed/"
+homepage = "https://github.com/zoe-translates/hugo-theme-zoified/"
 
 # If you have a running demo of the theme.
-demosite = "https://gohugo-theme-ed.netlify.app/"
+demosite = ""
 
 tags = [
   "blog",
@@ -47,11 +47,9 @@ min_version = "0.95.0"
 
 # If the theme has a single author.
 [author]
+  name = "Zoë C."
+  homepage = "https://zoe-translat.es/"
+
+[original]
   name = "Serghei Iakovlev"
   homepage = "https://serghei.blog/"
-
-# If porting an existing theme.
-[original]
-  author = "Alex Gil"
-  homepage = "https://www.elotroalex.com/"
-  repo = "https://github.com/minicomp/ed/"

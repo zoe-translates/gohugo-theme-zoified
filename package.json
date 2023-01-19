@@ -1,23 +1,20 @@
 {
-  "name": "ed",
+  "name": "zoified",
   "version": "0.6.0",
   "private": true,
-  "description": "Ed theme for minimal editions, based on Alex Gil theme.",
+  "description": "Ed theme for minimal editions, based on Alex Gil theme, with modifications specially crafted for zoe-translat.es",
   "keywords": [
     "hugo",
     "theme",
     "minimal"
   ],
-  "homepage": "https://github.com/sergeyklay/gohugo-theme-ed#readme",
-  "bugs": {
-    "url": "https://github.com/sergeyklay/gohugo-theme-ed/issues"
-  },
+  "homepage": "https://github.com/zoe-translates/hugo-theme-zoified#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sergeyklay/gohugo-theme-ed.git"
+    "url": "git+https://github.com/zoe-translates/hugo-theme-zoified.git"
   },
   "license": "MIT",
-  "author": "Serghei Iakovlev <egrep@protonmail.ch>",
+  "author": "Zoë C. <zoe@zoetranslat.es>",
   "main": "index.js",
   "scripts": {
     "server": "HUGO_RESOURCEDIR='../resources' HUGO_ENV=development hugo server --verbose --source=exampleSite --buildDrafts --buildFuture --ignoreCache --disableFastRender",
