@@ -1,5 +1,9 @@
 {{- /* Styles */}}
-{{- $theme := resources.Get "sass/style.scss" | resources.ToCSS }}
+{{- $sass_opt := (dict "enableSourceMap" false) -}}
+{{- if (not hugo.IsProduction) -}}
+{{- $sass_opt = (dict "enableSourceMap" true "targetPath" "css/style.css") -}}
+{{- end -}}
+{{- $theme := resources.Get "sass/style.scss" | resources.ToCSS $sass_opt }}
 
 {{- /* order is important */}}
 {{- /* to ass more styles use the following format: slice $theme $style1 $style2 $style3 ... */}}
@@ -8,7 +12,10 @@
 
 {{- /* bundle all required css */}}
 {{- /* Add extended css after theme style */ -}}
-{{- $stylesheet := (slice $core $extended) | resources.Concat "css/stylesheet.css" | minify }}
+{{- $stylesheet := (slice $core $extended) | resources.Concat "css/stylesheet.css" -}}
+{{- if hugo.IsProduction -}}
+{{- $stylesheet = minify $stylesheet -}}
+{{- end -}}
 
 {{- if not site.Params.assets.disable_fingerprinting -}}
     {{- $stylesheet := $stylesheet | fingerprint }}
