@@ -1,12 +1,10 @@
-{{- $isProduction := (or (eq (getenv "HUGO_ENV") "production") (eq site.Params.env "production")) -}}
-
 {{- $scripts := slice -}}
 {{- $scripts = $scripts | append (resources.Get "js/ed.js") -}}
 {{- $scripts = $scripts | resources.Concat "js/common.js" -}}
 
-{{- $scripts = $scripts | js.Build (dict "format" "iife" "target" "es2015" "minify" $isProduction) -}}
+{{- $scripts = $scripts | js.Build (dict "format" "iife" "target" "es2015" "minify" hugo.IsProduction) -}}
 
-{{- if or (site.Params.assets.disable_fingerprinting) (not $isProduction) }}
+{{- if or (site.Params.assets.disable_fingerprinting) (not hugo.IsProduction) }}
     <script src="{{ $scripts.RelPermalink }}"></script>
 {{- else -}}
     {{- $scripts = $scripts | fingerprint }}

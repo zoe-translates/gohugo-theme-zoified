@@ -43,8 +43,6 @@
     </article>
 </template>
 
-{{- $isProduction := (or (eq (getenv "HUGO_ENV") "production") (eq site.Params.env "production")) -}}
-
 {{- /* Add lunr.js. */ -}}
 {{- $lunrSearch := slice (resources.Get "js/vendor/lunr.js") -}}
 
@@ -66,11 +64,11 @@
 {{- /* Build lunr. */ -}}
 {{- $lunrSearch = $lunrSearch | resources.Concat "js/lunr-bundle.js" -}}
 
-{{- if $isProduction -}}
+{{- if hugo.IsProduction -}}
     {{- $lunrSearch = $lunrSearch | minify -}}
 {{- end -}}
 
-{{- if or (site.Params.assets.disable_fingerprinting) (not $isProduction) }}
+{{- if or (site.Params.assets.disable_fingerprinting) (not hugo.IsProduction) }}
     <script src="{{ $lunrSearch.RelPermalink }}"></script>
 {{- else -}}
     {{- $lunrSearch = $lunrSearch | fingerprint }}
@@ -87,9 +85,9 @@
 {{- $siteSearch = $siteSearch | append (resources.Get "js/search.js") -}}
 {{- $siteSearch = $siteSearch | resources.Concat "js/search-bundle.js" -}}
 
-{{- $siteSearch = $siteSearch | js.Build (dict "format" "iife" "minify" $isProduction "target" "es2015" "params" $searchParams) -}}
+{{- $siteSearch = $siteSearch | js.Build (dict "format" "iife" "minify" hugo.IsProduction "target" "es2015" "params" $searchParams) -}}
 
-{{- if or (site.Params.assets.disable_fingerprinting) (not $isProduction) }}
+{{- if or (site.Params.assets.disable_fingerprinting) (not hugo.IsProduction) }}
     <script src="{{ $siteSearch.RelPermalink }}"></script>
 {{- else -}}
     {{- $siteSearch = $siteSearch | fingerprint }}
