@@ -17,6 +17,7 @@
             <a class="sidebar-nav-item{{ if $active }} active{{ end }}"
                 href="{{ .URL }}"
                 id="menu-main-{{ .Identifier }}"
+		{{- if eq .Identifier site.Params.searchMenuId }} rel="search"{{end}}
                 {{- if eq .Params.external true }} target="_blank" rel="noopener noreferrer"{{ end }}>
                 {{- print .Name | safeHTML -}}
             </a>
