@@ -1,17 +1,17 @@
-{{- with site.Author.name }}
-    /* TEAM */
+{{- with site.Author.name -}}
+/* TEAM */
 
-    Author: {{ . }}
-{{- with site.Author.email }}{{ printf "\n    Contact: %s" . }}{{ end }}
-{{- with site.Author.github }}{{ printf "\n    GitHub: @%s" . }}{{ end }}
-{{- with site.Author.twitter }}{{ printf "\n    Twitter: @%s" . }}{{ end }}
-{{- with site.Author.location }}{{ printf "\n    From: %s" . }}{{ end }}
+	Author: {{ . }}
+{{- with site.Author.email }}{{ printf "\n\tContact: %s" . }}{{ end }}
+{{- with site.Author.github }}{{ printf "\n\tGitHub: @%s" . }}{{ end }}
+{{- with site.Author.twitter }}{{ printf "\n\tTwitter: @%s" . }}{{ end }}
+{{- with site.Author.location }}{{ printf "\n\tFrom: %s" . }}{{ end }}
 {{- end }}
 
-    /* SITE */
+/* SITE */
 
-    Last update: {{ now.Format "2006/01/02" }}
-    Language: {{ range $i, $l := site.Languages }}{{ if $i }}, {{ end }}{{ .LanguageName }}{{ end }}
-    Doctype: HTML5
-    Standards: HTML5, CSS3, SVG, Open Graph protocol, Schema.org
-    Components: Hugo, Zoified Theme, Lunr.js
+	Last update: {{ now.Format "2006/01/02" }}
+	Language: {{ range $i, $l := site.Languages }}{{ if $i }}, {{ end }}{{ .LanguageName }}{{ end }}
+	Doctype: HTML5
+	Standards: HTML5, CSS3, SVG, Open Graph protocol, Schema.org
+	Components: Hugo, Zoified Theme, Lunr.js
