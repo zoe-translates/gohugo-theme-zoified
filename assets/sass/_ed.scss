@@ -92,7 +92,7 @@ body {
 }
 
 /* Links */
-a, .text-title a {
+a, .text-title a, span.site-title {
   color: $link-color;
   text-decoration: none;
 }
