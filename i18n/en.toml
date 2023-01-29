@@ -74,5 +74,8 @@
 [back_to_top_label]
   other = 'Back to the top of the page'
 
+[sidebar_toggle_desc]
+  other = "Toggle the menu sidebar"
+
 [annotate]
   other = 'Annotate me'
