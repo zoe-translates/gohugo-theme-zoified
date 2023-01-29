@@ -27,7 +27,7 @@
             </main>
         </div>
 
-	<label for="sidebar-checkbox" class="sidebar-toggle" aria-label="{{ i18n "sidebar_toggle_desc"}}" tabindex="0"></label>
+	<label id="sidebar-toggle" for="sidebar-checkbox" aria-owns="sidebar-checkbox" class="sidebar-toggle" tabindex="{{ if .IsHome }}1{{ else }}0{{ end }}"></label>
 
         <nav>
         <a href="#top-of-site" class="top-of-site-link" data-visible="false" aria-labelledby="go-top-button-title">

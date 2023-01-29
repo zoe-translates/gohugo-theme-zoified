@@ -13,6 +13,18 @@ function setupBackToTop() {
   }
 }
 
+// set up keyboard cotrol of the menu toggle
+function setupKbdMenuToggle() {
+    const widget = document.getElementById('sidebar-toggle');
+    const box = document.getElementById('sidebar-checkbox');
+    if ((widget === null) || (box === null)) return;
+    widget.addEventListener('keydown', (e) => {
+	if (e.code == 'Enter') {
+	    box.checked ^= 1;
+	}
+    });
+}
+
 // Annotation support
 function setupHypothes() {
   const hypothesisContainer = document.querySelector('.hypothesis-container');
@@ -35,5 +47,6 @@ function setupHypothes() {
 
 document.addEventListener('DOMContentLoaded', () => {
   setupBackToTop();
+  setupKbdMenuToggle();
   setupHypothes();
 });
