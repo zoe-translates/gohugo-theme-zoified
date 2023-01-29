@@ -1,5 +1,5 @@
 <div id="site-search" class="search-form">
-    <p>{{ i18n "search_help" }}</p>
+    <label for="search">{{ i18n "search_help" }}</label>
     <form role="search" id="search-form">
         <div class="search-wrapper">
             <div class="search-container form-item">
@@ -7,9 +7,7 @@
                     autofocus
                     autocomplete="off"
                     spellcheck="false"
-                    placeholder=""
                     class="search-form-input form-input"
-                    aria-label="{{ i18n "search_site" }}"
                     type="search"
                     id="search"
                     name="search"
@@ -22,6 +20,7 @@
     </form>
 </div>
 
+<output for="search" form="search-form" aria-relevant="additions">
 <section id="search-results" class="hide-element">
     <div id="search-results-header">
         <div class="search-query search-query-right">
@@ -31,6 +30,7 @@
     </div>
     <div id="search-results-body" class="post-list"></div>
 </section>
+</output>
 
 <template>
     <article class="post" data-score="">
