@@ -85,7 +85,7 @@
 
 {{- /* Configure search engine. */ -}}
 {{- $maxSummaryLength := site.Params.search.maxSummaryLength | default 100 -}}
-{{- $searchConfig := dict "indexURI" ("/index.json" | relLangURL) "maxSummaryLength" $maxSummaryLength "lunrLanguages" $lunrLanguages -}}
+{{- $searchConfig := dict "indexURI" "/searchindex.json" "maxSummaryLength" $maxSummaryLength "lunrLanguages" $lunrLanguages -}}
 {{- $searchI18n := dict "noResults" (i18n "search_no_results") -}}
 {{- $searchParams := dict "searchConfig" $searchConfig "i18n" $searchI18n -}}
 

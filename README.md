@@ -21,12 +21,11 @@ Other major changes include the following:
   as a text line.
 - A new kind of byline item, the "translator", has been implemented and added
   to the byline when necessary.
-- To make search by author easier, for translated works the text "By ...
-  (author)" is added to the beginning of the JSON index content. So by
-  searching for "Marina" you may get a list of poems originally written by
-  Marina Tsvetaeva.
-- Overall, the styles are being redesigned for further simplicity, readability,
-  and accessibility (WIP).
+- The search index now includes the "author" field to make search by author
+  easier.
+- The search page includes more help context.
+- Overall, the document structure and styles are being redesigned for further
+  simplicity, readability, and accessibility (WIP).
 
 The following text is from the original Ed project's README page.
 
