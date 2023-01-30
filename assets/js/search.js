@@ -127,7 +127,6 @@ function renderSearchResults(query, results) {
   clearSearchResults();
   updateSearchResults(query, results);
   showSearchResults();
-  scrollToTop();
 }
 
 function clearSearchResults() {
@@ -263,18 +262,6 @@ function chunkify(input, chunkSize) {
 function showSearchResults() {
   document.getElementById('search-results').classList.remove('hide-element');
   document.getElementById('site-search').classList.remove('expanded');
-}
-
-function scrollToTop() {
-  const toTopInterval = setInterval(function () {
-    const supportedScrollTop = document.body.scrollTop > 0 ? document.body : document.documentElement;
-    if (supportedScrollTop.scrollTop > 0) {
-      supportedScrollTop.scrollTop = supportedScrollTop.scrollTop - 50;
-    }
-    if (supportedScrollTop.scrollTop < 1) {
-      clearInterval(toTopInterval);
-    }
-  }, 10);
 }
 
 function ellipsize(input, maxLength) {
