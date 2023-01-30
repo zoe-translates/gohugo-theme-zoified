@@ -16,18 +16,18 @@ template {
   margin-bottom: 40px;
 
   @include mq(tabletp) {
+    min-height: 50px;
+    margin-bottom: 50px;
+  }
+
+  @include mq(tabletl) {
     min-height: 60px;
     margin-bottom: 60px;
   }
 
-  @include mq(tabletl) {
-    min-height: 80px;
-    margin-bottom: 80px;
-  }
-
   @include mq(laptop) {
-    min-height: 100px;
-    margin-bottom: 100px;
+    min-height: 70px;
+    margin-bottom: 70px;
   }
 }
 
@@ -49,18 +49,18 @@ template {
 }
 
 .post {
-  margin-top: 25px;
+  margin-top: 30px;
 
   @include mq(tabletp) {
-    margin-top: 30px;
-  }
-
-  @include mq(tabletl) {
     margin-top: 35px;
   }
 
-  @include mq(laptop) {
+  @include mq(tabletl) {
     margin-top: 40px;
+  }
+
+  @include mq(laptop) {
+    margin-top: 45px;
   }
 
   &:first-of-type {
