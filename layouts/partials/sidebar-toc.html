@@ -2,7 +2,7 @@
 <input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox" aria-controls="sidebar" aria-label="{{ i18n "sidebar_toggle_desc"}}">
 
 <!-- Toggleable sidebar -->
-<aside class="sidebar" id="sidebar">
+<div class="sidebar" id="sidebar">
     <div class="sidebar-item">
         <p>{{ .Title }}</p>
     </div>
@@ -24,4 +24,4 @@
     {{ $toc }}
 
     {{ partial "footer" . }}
-</aside>
+</div>
