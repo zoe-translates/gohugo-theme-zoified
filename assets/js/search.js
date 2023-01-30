@@ -25,6 +25,7 @@ async function initSearchIndex() {
       }
 
       this.field('objectID');
+      this.field('author');
       this.field('title');
       this.field('lang');
       this.field('tags');
@@ -150,7 +151,7 @@ function updateSearchResults(query, results) {
 
     const a = result.querySelector('a');
     a.innerHTML = item.title;
-    a.href = `${item.href}?utm_source=search`;
+    a.href = item.href;
 
     const content = result.querySelector('.post-content');
     content.innerHTML = createSearchResultBlurb(query, item.content);
@@ -209,7 +210,7 @@ function createSearchResultBlurb(query, pageContent) {
   }
   return ellipsize(searchResultText, searchConfig.maxSummaryLength).replace(
     searchQueryRegex,
-    '<span class="search-item">$&</span>'
+    '<mark class="search-item">$&</mark>'
   );
 }
 

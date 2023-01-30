@@ -170,7 +170,6 @@ form input:-moz-ui-invalid {
 }
 
 .search-item {
-  font-weight: bold;
   background-color: rgb(255, 255, 84);
 }
 
@@ -178,3 +177,30 @@ form input:-moz-ui-invalid {
 .search-error-message {
   @include transition(all .5s ease-out);
 }
+
+.search-form > label {
+    display: block;
+    margin: 0.25rem;
+}
+
+hr.search-fold {
+    margin: 0.5rem 0;
+}
+
+// Search extended help.
+.search-help-details {
+    font-size: 85%;
+}
+
+.search-help-details[open], .details-content {
+    background-color: rgba(255, 255, 200, 0.85);
+}
+
+.search-help-details[open] .search-help-details-summary::after {
+    content: " (click to close)";
+}
+
+.search-help-details-summary::after {
+    content: " (click to open)";
+}
+

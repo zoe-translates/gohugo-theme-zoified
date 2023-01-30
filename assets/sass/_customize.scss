@@ -49,23 +49,27 @@ template {
 }
 
 .post {
-  margin-top: 40px;
+  margin-top: 25px;
 
   @include mq(tabletp) {
-    margin-top: 60px;
+    margin-top: 30px;
   }
 
   @include mq(tabletl) {
-    margin-top: 80px;
+    margin-top: 35px;
   }
 
   @include mq(laptop) {
-    margin-top: 100px;
+    margin-top: 40px;
   }
 
   &:first-of-type {
     margin-top: 0;
   }
+}
+
+.post p.post-content {
+    margin-bottom: 0.25rem;
 }
 
 #TableOfContents ul ul,
