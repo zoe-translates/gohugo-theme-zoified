@@ -15,21 +15,23 @@
 {{- $pages = $pages | first $limit -}}
 
 {
-  "version": "https://jsonfeed.org/version/1.1",
+  "version": "https://jsonfeed.org/version/1.1/",
   "title": {{ (partial "title.html" .) | htmlUnescape | jsonify }},
   "home_page_url": {{ absURL site.BaseURL | jsonify }},
-  {{ with .OutputFormats.Get "JSON" }}"feed_url": {{ .Permalink | absURL | jsonify }},{{ end }}
+  "feed_url": {{ .Permalink | absURL | jsonify }},
   {{ with site.Params.description}}"description": {{ site.Params.description | jsonify }},{{ end }}
-  {{- $logo := resources.Get (site.Params.assets.logo | default "/img/open-graph-logo.png") }}{{ $logo = $logo.Resize "96x96" }}
-  "icon": {{ $logo.Permalink | jsonify }},
-  "favicon": {{ $logo.Permalink | jsonify }},
+  {{- $icon := resources.Get (site.Params.assets.logo | default "/img/open-graph-logo.png") -}}
+  {{- $iconpath := jsonify $icon.Permalink }}
+  "icon": {{ with site.Params.assets.large_icon }}{{ site.Params.assets.large_icon | absURL | jsonify }}{{ else }}{{ $iconpath }}{{ end }},
+  {{ $icon = $icon.Resize "96x96" -}}
+  "favicon": {{ jsonify $icon.Permalink }},
   {{ with site.Author.name }}"authors": [
     {
       "name": {{ . | jsonify }}{{ with site.Author.twitter }},
       "url": {{ (printf "https://twitter.com/%s" . ) | jsonify }}{{ end }}
     }
   ],{{ end }}
-  {{ with site.LanguageCode }}"language" : "{{ . }}",{{ end }}{{ $feedsize := site.Params.feedSize | default 25 }}
+  {{ with site.LanguageCode }}"language": "{{ . }}",{{ end }}{{ $feedsize := site.Params.feedSize | default 25 }}
   "items": [{{ range $i, $ := $pages }}{{ if $i }},{{ end }}
     {
       "id": {{ $uuid := sha1 (.Permalink  | absURL)}}"{{substr $uuid 0 8}}-{{substr $uuid 8 4}}-5{{substr $uuid 13 3}}-{{substr $uuid 16 1}}9{{substr $uuid 17 2}}-{{substr $uuid 21 12}}",
