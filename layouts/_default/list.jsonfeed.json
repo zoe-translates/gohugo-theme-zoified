@@ -22,7 +22,7 @@
   {{ with site.Params.description}}"description": {{ site.Params.description | jsonify }},{{ end }}
   {{- $icon := resources.Get (site.Params.assets.logo | default "/img/open-graph-logo.png") -}}
   {{- $iconpath := jsonify $icon.Permalink }}
-  "icon": {{ with site.Params.assets.large_icon }}{{ site.Params.assets.large_icon | absURL | jsonify }}{{ else }}{{ $iconpath }}{{ end }},
+  "icon": {{ with site.Params.assets.large_icon }}{{ . | absURL | jsonify }}{{ else }}{{ $iconpath }}{{ end }},
   {{ $icon = $icon.Resize "96x96" -}}
   "favicon": {{ jsonify $icon.Permalink }},
   {{ with site.Author.name }}"authors": [
@@ -34,12 +34,33 @@
   {{ with site.LanguageCode }}"language": "{{ . }}",{{ end }}{{ $feedsize := site.Params.feedSize | default 25 }}
   "items": [{{ range $i, $ := $pages }}{{ if $i }},{{ end }}
     {
-      "id": {{ $uuid := sha1 (.Permalink  | absURL)}}"{{substr $uuid 0 8}}-{{substr $uuid 8 4}}-5{{substr $uuid 13 3}}-{{substr $uuid 16 1}}9{{substr $uuid 17 2}}-{{substr $uuid 21 12}}",
+      "id": {{ $uuid := sha1 (.Permalink | absURL) }}"{{substr $uuid 0 8}}-{{substr $uuid 8 4}}-5{{substr $uuid 13 3}}-{{substr $uuid 16 1}}9{{substr $uuid 17 2}}-{{substr $uuid 21 12}}",
       "url": {{ jsonify .Permalink }},
       "title": {{ .Title | plainify | chomp | jsonify }},
-      "summary": {{ .Summary | plainify | chomp | jsonify }},
+      "content_text": {{ trim .Plain "\n " | htmlUnescape | jsonify }},
+      "summary": {{ .Summary | plainify | chomp | truncate 120 | jsonify }},
       "date_published": {{ .PublishDate.Format "2006-01-02T15:04:05Z07:00" | jsonify  }}{{ if ne .Date .Lastmod }},
-      "date_modified" : {{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" | jsonify }}{{ end }}
+      "date_modified": {{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" | jsonify }}{{ end }},
+      "authors": [
+      {{- if .Section | eq "translations" -}}
+         {{- if .Params.author }}
+        {
+          "name": {{ .Params.author | jsonify }}
+        },{{- end -}}
+        {{- if .Params.translator }}
+        {
+          "name": {{ .Params.translator | jsonify }}
+        }
+        {{- end -}}
+      {{- else -}}
+         {{- if .Params.author }}
+        {
+          "name": {{ .Params.author | jsonify }}
+        }
+          {{- end -}}
+      {{- end }}
+      ],
+      "tags": {{ .Params.tags | default slice | jsonify }}
     }
     {{- end }}
   ]
