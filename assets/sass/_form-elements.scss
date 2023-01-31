@@ -178,7 +178,7 @@ form input:-moz-ui-invalid {
   @include transition(all .5s ease-out);
 }
 
-.search-form > label {
+.search-form > label, .search-form > details {
     display: block;
     margin: 0.25rem;
 }
