@@ -57,6 +57,12 @@ body {
   margin-bottom: 4rem;
 }
 
+/* Link decoration for visual cues */
+a {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 0.1em;
+}
 
 /*
   Wrapper
@@ -94,13 +100,12 @@ body {
 /* Links */
 a, .text-title a, span.site-title {
   color: $link-color;
-  text-decoration: none;
 }
 
 /* `:focus` is linked to `:hover` for basic accessibility */
 a:hover,
 a:focus {
-  text-decoration: underline;
+  text-decoration-style: solid;
 }
 
 /* Headings */
@@ -333,6 +338,31 @@ a.sidebar-nav-item:focus {
   text-decoration: none;
   background-color: rgba(255,255,255,.1);
   border-color: transparent;
+}
+
+.sidebar-nav-item {
+  text-decoration: none;
+}
+
+.sidebar-nav-item a {
+  text-decoration: none;
+}
+
+ol.sidebar-nav-item {
+    margin-bottom: 0;
+    list-style: none;
+}
+
+.sidebar-feed-list li {
+    display: inline;
+}
+
+.sidebar-feed-list li::after {
+    content: " / ";
+}
+
+.sidebar-feed-list li:last-child::after {
+    content: "";
 }
 
 @media (min-width: 48em) {

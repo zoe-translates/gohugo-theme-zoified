@@ -30,14 +30,13 @@
         {{- end }}
 
         {{- with site.Menus.feeds }}
-            <div class="sidebar-nav-item">
-                {{- range $i, $ := site.Menus.feeds }}
-                    {{ if $i }}<span aria-hidden="true">|</span>{{ end }}
-                    <a href="{{ .URL }}" id="menu-feeds-{{ .Identifier }}" class="menu-feeds-item" data-feed-type="{{ .Identifier }}">
+		<ol class="sidebar-nav-item sidebar-feed-list">
+                {{- range site.Menus.feeds -}}
+		    <li><a href="{{ .URL }}" id="menu-feeds-{{ .Identifier }}" class="menu-feeds-item" data-feed-type="{{ .Identifier }}" type="{{ .Params.mime }}">
                         {{-  print .Name | safeHTML -}}
-                    </a>
-                {{ end }}
-            </div>
+		    </a></li>
+                {{- end -}}
+		</ol>
         {{ end }}
     </nav>
 
