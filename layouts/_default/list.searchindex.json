@@ -13,14 +13,8 @@
       {{- if not (in ($.Scratch.Get "urlsAdded") $page.Permalink) -}}
         {{- /* Exclude virtual pages which aren't backed by a file */ -}}
         {{- if .File -}}
-          {{- $publishDate := $page.PublishDate -}}
-          {{- if $publishDate.IsZero -}}
-            {{- $publishDate = now -}}
-          {{- end -}}
+          {{- $publishDate := $page.Date -}}
           {{- $modifiedDate := $page.Lastmod -}}
-          {{- if $modifiedDate.IsZero -}}
-            {{- $modifiedDate = $publishDate -}}
-          {{- end -}}
           {{- $pageauth := $page.Params.author | default "Anonymous" -}}
           {{- $pageData := (dict
             "objectID" $page.File.UniqueID
