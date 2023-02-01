@@ -18,7 +18,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ site.LanguageCode }}">
     {{ printf `<title type="html"><![CDATA[%s]]></title>` (partial "title.html" .) | safeHTML }}
     {{ with site.Params.description }}{{ printf `<subtitle type="html"><![CDATA[%s]]></subtitle>` . | safeHTML }}{{ end }}
-    <link href="{{ .Permalink }}" rel="self" type="xml/atom" />
+    <link href="{{ .Permalink }}" rel="self" type="text/xml" />
     {{- $output_formats := .AlternativeOutputFormats }}
     {{- range $output_formats -}}
     {{- with $output_formats.Get .Name }}
