@@ -15,20 +15,20 @@
 {{- $pages = $pages | first $limit -}}
 
 {{- safeHTML "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" }}
-<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="{{ site.LanguageCode }}" xml:base="{{ site.BaseURL }}">
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ site.LanguageCode }}" xml:base="{{ site.BaseURL }}">
     {{ printf `<title type="html"><![CDATA[%s]]></title>` (partial "title.html" .) | safeHTML }}
     {{ with site.Params.description }}{{ printf `<subtitle type="html"><![CDATA[%s]]></subtitle>` . | safeHTML }}{{ end }}
-    {{- $output_formats := .OutputFormats }}
+    <link href="{{ .RelPermalink }}" rel="self" type="xml/atom" />
+    {{- $output_formats := .AlternativeOutputFormats }}
     {{- range $output_formats -}}
-    {{- $rel := (or (and (eq "atom" (.Name | lower)) "self") "alternate") -}}
     {{- with $output_formats.Get .Name }}
-    {{ printf `<link href=%q rel=%q type=%q title=%q />` .RelPermalink $rel .MediaType.Type .Name | safeHTML }}
+    {{ printf `<link href=%q rel="alternate" type=%q title=%q />` .RelPermalink .MediaType.Type .Name | safeHTML }}
     {{- end -}}
     {{- end }}
     {{ $logo := resources.Get (site.Params.assets.logo | default "/img/open-graph-logo.png") }}{{ $logo = $logo.Resize "96x96" }}<icon>{{ $logo.Permalink | absURL }}</icon>
     <logo>{{ $logo.Permalink | absURL }}</logo>{{ with site.Author.name }}
     <author>
-        {{ printf `<name type="html"><![CDATA[%s]]></name>` . | safeHTML }}
+        {{ printf `<name><![CDATA[%s]]></name>` . | safeHTML }}
         {{ with site.Author.email }}<email>{{ . | html }}</email>{{ end }}
     </author>{{ end }}{{ with site.Params.Copyright }}{{ $copyright := replace . "{year}" now.Year }}{{ $copyright = replace $copyright "&copy;" "©" }}
     <rights>{{ $copyright | plainify }}</rights>{{ end }}
@@ -37,37 +37,37 @@
     <id>urn:uuid:{{ substr $uuid 0 8 }}-{{ substr $uuid 8 4 }}-5{{ substr $uuid 13 3 }}-{{ substr $uuid 16 1 }}9{{ substr $uuid 17 2 }}-{{ substr $uuid 21 12 }}</id>{{- range $pages }}
     <entry>
         {{- $url := .Permalink | absURL }}{{ $uuid := sha1 (.Permalink | absURL) }}{{ $page := . }}
-        {{ $section := .Section }}
+        {{ $section := .Section -}}
         <category term="{{ $section }}" />
-        {{ range (.GetTerms "tags") }}
+        {{- range (.GetTerms "tags") -}}
             {{ if not (eq .LinkTitle $section) }}
-            <category term="{{ .LinkTitle }}" x="y" />
-            {{ end }}
+        <category term="{{ .LinkTitle }}" />
+            {{- end -}}
         {{ end }}
-        <link rel="alternate" type="type/html" href="{{ $url }}?utm_source=atom_feed" />
+        <link rel="alternate" type="text/html" href="{{ $url }}" />
         {{ printf `<title type="html"><![CDATA[%s]]></title>` .Title | safeHTML }}
-        {{/* See: https://discourse.gohugo.io/t/using-regularpages-related-gives-me-keywords-index-support-error/35657?u=egrep */}}
-        {{ $related := first 5 (where (where .Site.Pages ".Params.tags" "intersect" .Params.tags) "Permalink" "!=" .Permalink) }}
+        {{- /* See: https://discourse.gohugo.io/t/using-regularpages-related-gives-me-keywords-index-support-error/35657?u=egrep */ -}}
+        {{- $related := first 5 (where (where .Site.Pages ".Params.tags" "intersect" .Params.tags) "Permalink" "!=" .Permalink) -}}
         {{ range $related }}
-            <link href="{{ .Permalink }}?utm_source=atom_feed" rel="related" type="text/html" title="{{ .Title }}" />
+            <link href="{{ .Permalink }}" rel="related" type="text/html" title="{{ .Title }}" />
         {{ end }}
-        <published>{{ .Date.Format "2006-01-02T15:04:05Z07:00" | safeHTML }}</published>{{ if ne .Date .Lastmod }}
-        <updated>{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" | safeHTML  }}</updated>{{ end }}
+        <published>{{ .Date.Format "2006-01-02T15:04:05Z07:00" | safeHTML }}</published>
+        <updated>{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" | safeHTML  }}</updated>
         <id>urn:uuid:{{ substr $uuid 0 8 }}-{{ substr $uuid 8 4 }}-5{{ substr $uuid 13 3 }}-{{ substr $uuid 16 1 }}9{{ substr $uuid 17 2 }}-{{ substr $uuid 21 12 }}</id>
-        {{ if .Params.author }}
-            {{- $author_type := (printf "%T" .Params.author) }}
-            {{- if eq $author_type "string" }}
-                <author>
-                    <name>{{ .Params.author }}</name>
-                </author>
-            {{- else if eq $author_type "[]string" }}
+        {{- if .Params.author -}}
+            {{- $author_type := (printf "%T" .Params.author) -}}
+            {{ if eq $author_type "string" }}
+            <author>
+                <name>{{ .Params.author }}</name>
+            </author>
+            {{- else if eq $author_type "[]string" -}}
                 {{ range .Params.author }}
-                    <author>
-                        <name>{{ .Name }}</name>
-                    </author>
-                {{ end }}
-            {{- end }}
-        {{ end }}
+            <author>
+                <name>{{ .Name }}</name>
+            </author>
+                {{- end -}}
+            {{- end -}}
+        {{- end }}
         {{ printf `<summary type="html"><![CDATA[%s]]></summary>` .Summary | safeHTML }}
     </entry>{{ end }}
 </feed>
