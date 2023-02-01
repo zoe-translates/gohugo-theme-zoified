@@ -15,14 +15,14 @@
 {{- $pages = $pages | first $limit -}}
 
 {{- safeHTML "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" }}
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ site.LanguageCode }}" xml:base="{{ site.BaseURL }}">
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ site.LanguageCode }}">
     {{ printf `<title type="html"><![CDATA[%s]]></title>` (partial "title.html" .) | safeHTML }}
     {{ with site.Params.description }}{{ printf `<subtitle type="html"><![CDATA[%s]]></subtitle>` . | safeHTML }}{{ end }}
-    <link href="{{ .RelPermalink }}" rel="self" type="xml/atom" />
+    <link href="{{ .Permalink }}" rel="self" type="xml/atom" />
     {{- $output_formats := .AlternativeOutputFormats }}
     {{- range $output_formats -}}
     {{- with $output_formats.Get .Name }}
-    {{ printf `<link href=%q rel="alternate" type=%q title=%q />` .RelPermalink .MediaType.Type .Name | safeHTML }}
+    {{ printf `<link href=%q rel="alternate" type=%q title=%q />` .Permalink .MediaType.Type .Name | safeHTML }}
     {{- end -}}
     {{- end }}
     {{ $logo := resources.Get (site.Params.assets.logo | default "/img/open-graph-logo.png") }}{{ $logo = $logo.Resize "96x96" }}<icon>{{ $logo.Permalink | absURL }}</icon>
