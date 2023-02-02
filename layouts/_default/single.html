@@ -6,12 +6,12 @@
             {{ .Params.pageTitle | default .Title }}
         </h1>
         <p class="byline">
-            {{ if in (slice "drama" "narrative" "poem") $postType }}
-                {{ partial "post-meta/author.html" . }}
-		{{ partial "post-meta/translator.html" . }}
-            {{ else }}
-                {{ partial "post-meta/author.html" . }}
-            {{ end }}
+            {{- if in (slice "drama" "narrative" "poem") $postType -}}
+                {{- partial "post-meta/author.html" . -}}
+                {{- partial "post-meta/translator.html" . -}}
+            {{- else -}}
+                {{- partial "post-meta/author.html" . -}}
+            {{- end -}}
         </p>
     </header>
 
