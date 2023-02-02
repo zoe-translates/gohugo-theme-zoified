@@ -142,7 +142,7 @@ h3 {
 /* Body text */
 p {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
 }
 
 /* Lists */
@@ -302,19 +302,22 @@ tbody tr:nth-child(odd) th {
 /* Sidebar content */
 .sidebar {
   background-color: $link-color;
-}
-
-.sidebar a {
-  font-weight: normal;
-  color: #fff;
+  a {
+    font-weight: normal;
+    color: #fff;
+  }
 }
 
 .sidebar-item {
   padding: 1rem;
 }
 
-.sidebar-item p:last-child {
-  margin-bottom: 0;
+.sidebar-item p {
+  line-height: 1.25;
+  margin-bottom: 0.75em;
+  &:last-child {
+      margin-bottom: 0;
+  }
 }
 
 /* Sidebar nav */
@@ -354,15 +357,13 @@ ol.sidebar-nav-item {
 }
 
 .sidebar-feed-list li {
-    display: inline;
-}
-
-.sidebar-feed-list li::after {
+  display: inline;
+  &::after {
     content: " / ";
-}
-
-.sidebar-feed-list li:last-child::after {
+  }
+  &:last-child::after {
     content: "";
+  }
 }
 
 @media (min-width: 48em) {
