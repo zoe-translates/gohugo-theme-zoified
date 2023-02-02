@@ -29,12 +29,10 @@
 
     {{- block "custom-head" . }}{{ partial "custom-head.html" . }}{{ end }}
     {{- block "custom-scripts" . }}{{ partial "custom-scripts.html" . }}{{ end }}
-
     {{- /* Misc */}}
     {{- template "partials/templates/opengraph.html" . }}
     {{- template "partials/templates/twitter_cards.html" . }}
     {{- template "partials/templates/schema_json.html" . }}
-
     {{- /* Scripts */}}
     {{- partial "partials/scripts.html" . }}
     {{- partial "partials/seo/ga.html" . }}
