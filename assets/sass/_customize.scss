@@ -222,7 +222,7 @@ a.external {
 
     @include mask-size(cover);
     @include mask-image(url("/img/external-link.svg"));
-  }
+  };
 }
 
 ul.tags-cloud {

@@ -1,5 +1,5 @@
 {{- /* Styles */}}
-{{- $sass_opt := (dict "enableSourceMap" false) -}}
+{{- $sass_opt := (dict "enableSourceMap" false "outputStyle" "compressed") -}}
 {{- if (not hugo.IsProduction) -}}
 {{- $sass_opt = (dict "enableSourceMap" true "targetPath" "css/style.css") -}}
 {{- end -}}
