@@ -1,25 +1,21 @@
 {{/* Define a section to pull recent posts from.
     This will default to the section with the most number of pages. */}}
-{{ $mainSections := site.Params.mainSections | default (slice "posts") }}
-
+{{- $mainSections := site.Params.mainSections | default (slice "posts") -}}
 {{/* Create a variable with that section to use in multiple places. */}}
-{{ $section := where site.RegularPages.ByDate.Reverse "Section" "in" $mainSections }}
-
+{{- $section := where site.RegularPages.ByDate.Reverse "Section" "in" $mainSections -}}
 {{/* Check to see if the section is defined for ranging through it */}}
-{{ $sectionCount := len $section }}
-
+{{- $sectionCount := len $section -}}
 {{ if ge $sectionCount 1 }}
-    {{ $maxPosts := site.Params.recentPostsSize | default 5 }}
-
+    {{- $maxPosts := site.Params.recentPostsSize | default 5 -}}
     <div class="toc" role="navigation">
-        <h2>{{ i18n "latest_publications" }}</h2>
-        <ol class="toc-listing">
-            {{/* Range through the first $maxPosts items of the $section */}}
-            {{ range (first $maxPosts $section) }}
-                <li class="toc-listing-item">
-                    {{ partial "post-toc-summary" . }}
-                </li>
-            {{ end }}
-        </ol>
+      <h2 id="toc-heading">{{ i18n "latest_publications" }}</h2>
+      <ol class="toc-listing">
+          {{- /* Range through the first $maxPosts items of the $section */ -}}
+          {{ range (first $maxPosts $section) }}
+        <li class="toc-listing-item">
+              {{ partial "post-toc-summary" . }}
+        </li>
+          {{- end -}}
+      </ol>
     </div>
 {{ end }}

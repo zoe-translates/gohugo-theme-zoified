@@ -24,6 +24,7 @@ Other major changes include the following:
 - The search index now includes the "author" field to make search by author
   easier.
 - The search page includes more help context.
+- The feeds (RSS, Atom, Json Feed) now pass validation.
 - Overall, the document structure and styles are being redesigned for further
   simplicity, readability, and accessibility (WIP).
 
