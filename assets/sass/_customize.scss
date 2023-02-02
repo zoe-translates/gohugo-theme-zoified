@@ -216,9 +216,9 @@ a.external {
     background-color: #ac4142;
     content: "";
     display: inline-flex;
-    height: 10px;
-    margin-left: 4px;
-    width: 10px;
+    height: 0.5em;
+    width: 0.5em;
+    margin-left: 0.2ch;
 
     @include mask-size(cover);
     @include mask-image(url("/img/external-link.svg"));
