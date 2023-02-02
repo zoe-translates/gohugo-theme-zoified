@@ -189,10 +189,11 @@ hr.search-fold {
 
 // Search extended help.
 .search-help-details {
+    @include transition(background-color 0.4s ease-in-out);
     font-size: 85%;
 }
 
-.search-help-details[open], .details-content {
+.search-help-details[open] {
     background-color: rgba(255, 255, 200, 0.85);
 }
 
