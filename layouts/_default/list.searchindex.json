@@ -17,14 +17,10 @@
           {{- $modifiedDate := $page.Lastmod -}}
           {{- $pageauth := $page.Params.author | default "Anonymous" -}}
           {{- $pageData := (dict
-            "objectID" $page.File.UniqueID
 	    "author" $pageauth
             "title" $page.Title
             "href" $page.RelPermalink
-            "lang" ($page.Params.lang | default $page.Lang)
             "tags" ($page.Params.tags | default slice)
-            "kind" $page.Kind
-            "type" $page.Type
             "section" $page.Section
             "content" (trim $page.Plain "\n ")
             "publishDate" $publishDate

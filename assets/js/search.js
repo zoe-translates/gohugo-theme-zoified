@@ -24,13 +24,9 @@ async function initSearchIndex() {
         this.use(pipeline);
       }
 
-      this.field('objectID');
       this.field('author');
       this.field('title');
-      this.field('lang');
       this.field('tags');
-      this.field('kind');
-      this.field('type');
       this.field('section');
       this.field('content');
       this.field('publishDate');
@@ -66,7 +62,15 @@ function handleSearchQuery(query) {
 function searchSite(query) {
   const originalQuery = query;
   const lunrQuery = getLunrSearchQuery(query);
-  const results = getSearchResults(lunrQuery);
+  let results;
+  try {
+    results = getSearchResults(lunrQuery);
+  } catch (e) {
+    if (e instanceof lunr.QueryParseError) {
+      return [];
+    }
+    throw e;
+  }
 
   if (results.length > 0) {
     return results;
