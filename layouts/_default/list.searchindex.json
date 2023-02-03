@@ -17,7 +17,7 @@
           {{- $modifiedDate := $page.Lastmod -}}
           {{- $pageauth := $page.Params.author | default "Anonymous" -}}
           {{- $pageData := (dict
-	    "author" $pageauth
+            "author" $pageauth
             "title" $page.Title
             "href" $page.RelPermalink
             "tag" ($page.Params.tags | default slice)
