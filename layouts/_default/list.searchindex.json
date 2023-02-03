@@ -4,6 +4,7 @@
 {{- $pages = where site.RegularPages.ByDate.Reverse "Section" "in" $mainSections -}}
 {{- $.Scratch.Add "pagesIndex" slice -}}
 {{- $.Scratch.Add "urlsAdded" slice -}}
+{{- $i := 0 -}}
 {{- range $index, $page := $pages -}}
   {{- /* Do not index drafts or private pages. */ -}}
   {{- if and (not .Draft) (not .Params.private) | and (ne .Params.searchable false) -}}
@@ -13,21 +14,21 @@
       {{- if not (in ($.Scratch.Get "urlsAdded") $page.Permalink) -}}
         {{- /* Exclude virtual pages which aren't backed by a file */ -}}
         {{- if .File -}}
-          {{- $publishDate := $page.Date -}}
-          {{- $modifiedDate := $page.Lastmod -}}
+          {{- $publishDate := $page.Date.Format "2 Jan 2006" -}}
           {{- $pageauth := $page.Params.author | default "Anonymous" -}}
           {{- $pageData := (dict
-            "author" $pageauth
-            "title" $page.Title
+            "revid" $i
             "href" $page.RelPermalink
-            "tag" ($page.Params.tags | default slice)
-            "section" $page.Section
             "content" (trim $page.Plain "\n ")
-            "publishDate" $publishDate
-            "lastmod" $modifiedDate
+            "title" $page.Title
+            "author" $pageauth
+            "date" $publishDate
+            "section" $page.Section
+            "tag" ($page.Params.tags | default slice)
           ) -}}
           {{- $.Scratch.Add "pagesIndex" $pageData -}}
           {{- $.Scratch.Add "urlsAdded" $page.Permalink -}}
+          {{- $i = add $i 1 -}}
         {{- end -}}
       {{- end -}}
     {{- end -}}

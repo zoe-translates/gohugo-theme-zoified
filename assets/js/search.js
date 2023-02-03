@@ -29,10 +29,9 @@ async function initSearchIndex() {
       this.field('tag');
       this.field('section');
       this.field('content');
-      this.field('publishDate');
-      this.field('lastmod');
 
       this.ref('href');
+      this.metadataWhitelist = ['position']
 
       pagesIndex.forEach((page) => this.add(page));
     });
@@ -88,6 +87,7 @@ function getSearchResults(query) {
 
   return searchIndex.search(query).flatMap((hit) => {
     if (hit.ref === 'undefined') return [];
+    // Super inefficient? --zm.
     let pageMatch = pagesIndex.filter((page) => page.href === hit.ref)[0];
     pageMatch.score = hit.score;
     return [pageMatch];
