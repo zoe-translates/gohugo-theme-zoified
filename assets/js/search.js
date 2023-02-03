@@ -26,7 +26,7 @@ async function initSearchIndex() {
 
       this.field('author');
       this.field('title');
-      this.field('tags');
+      this.field('tag');
       this.field('section');
       this.field('content');
       this.field('publishDate');

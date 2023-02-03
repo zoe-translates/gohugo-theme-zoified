@@ -20,7 +20,7 @@
 	    "author" $pageauth
             "title" $page.Title
             "href" $page.RelPermalink
-            "tags" ($page.Params.tags | default slice)
+            "tag" ($page.Params.tags | default slice)
             "section" $page.Section
             "content" (trim $page.Plain "\n ")
             "publishDate" $publishDate
