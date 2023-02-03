@@ -69,7 +69,11 @@ template {
 }
 
 .post p.post-content {
-    margin-bottom: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+p.pre-blurb {
+  white-space: pre-line;
 }
 
 #TableOfContents ul ul,

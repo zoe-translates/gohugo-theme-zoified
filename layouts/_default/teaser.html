@@ -1,20 +1,20 @@
 <article class="post">
-    <header>
-        <h2 class="post-title">
-            <a href="{{ .Permalink }}" rel="bookmark">{{ .Title }}</a>
-        </h2>
-        <p class="post-meta">
-            {{- partial "post-meta/date.html" . -}}
-        </p>
-    </header>
-    <p class="post-content">
-        {{ .Summary }}
+  <header>
+    <h2 class="post-title">
+      <a href="{{ .Permalink }}" rel="bookmark">{{ .Title }}</a>
+    </h2>
+    <p class="post-meta">
+      {{- partial "post-meta/date.html" . -}}
     </p>
-    {{ if site.Params.readmore }}
-        {{ if .Truncated }}
-            <footer>
-                <a href="{{ .RelPermalink }}" class="read-more">{{ i18n "more" }}</a>
-            </footer>
-        {{ end }}
-    {{ end }}
+  </header>
+  <p class="post-content pre-blurb">
+    {{- .Summary -}}
+  </p>
+  {{ if site.Params.readmore -}}
+    {{- if .Truncated -}}
+  <footer>
+    <a href="{{ .RelPermalink }}" class="read-more">{{ i18n "more" }}</a>
+  </footer>
+    {{- end -}}
+  {{- end }}
 </article>
