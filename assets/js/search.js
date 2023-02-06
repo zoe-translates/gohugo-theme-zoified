@@ -30,7 +30,7 @@ async function initSearchIndex() {
       this.field('section');
       this.field('content');
 
-      this.ref('href');
+      this.ref('revid');
       this.metadataWhitelist = ['position']
 
       pagesIndex.forEach((page) => this.add(page));
@@ -87,9 +87,9 @@ function getSearchResults(query) {
 
   return searchIndex.search(query).flatMap((hit) => {
     if (hit.ref === 'undefined') return [];
-    // Super inefficient? --zm.
-    let pageMatch = pagesIndex.filter((page) => page.href === hit.ref)[0];
+    let pageMatch = pagesIndex[hit.ref];
     pageMatch.score = hit.score;
+    pageMatch.metadata = hit.matchData.metadata;
     return [pageMatch];
   });
 }
@@ -110,7 +110,7 @@ function displayErrorMessage(message) {
   const searchContainer = document.querySelector('.search-container');
   searchContainer.classList.add('form-item-error');
   searchContainer.classList.remove('focused');
-  document.querySelector('.search-error-message').innerHTML = message;
+  document.querySelector('.search-error-message').textContent = message;
   document.querySelector('.search-error').classList.remove('hide-element');
 }
 
@@ -119,7 +119,7 @@ function hideErrorMessage() {
   searchContainer.classList.add('focused');
   searchContainer.classList.remove('form-item-error');
   document.querySelector('.search-error').classList.add('hide-element');
-  document.querySelector('.search-error-message').innerHTML = '';
+  document.querySelector('.search-error-message').textContent = '';
 }
 
 function hideSearchResults() {
@@ -134,8 +134,8 @@ function renderSearchResults(query, results) {
 }
 
 function clearSearchResults() {
-  document.getElementById('search-results-body').innerHTML = '';
-  document.getElementById('results-count').innerHTML = '';
+  document.getElementById('search-results-body').textContent = '';
+  document.getElementById('results-count').textContent = '';
 }
 
 function updateSearchResults(query, results) {
@@ -147,19 +147,25 @@ function updateSearchResults(query, results) {
 
   for (const id in results) {
     const item = results[id];
-    const result = template.cloneNode(true);
+    const result_node = template.cloneNode(true);
 
-    const article = result.querySelector('article');
+    const article = result_node.querySelector('article');
     article.dataset.score = item.score.toFixed(2);
 
-    const a = result.querySelector('a');
-    a.innerHTML = item.title;
+    // NOTE: To be replaced by new implementations doing the marking, in all
+    // supported search-result fields, using result metadata.
+    const a = result_node.querySelector('a');
+    a.textContent = item.title;
     a.href = item.href;
 
-    const content = result.querySelector('.post-content');
+    const content = result_node.querySelector('.post-content');
     content.innerHTML = createSearchResultBlurb(query, item.content);
+    const date = result_node.querySelector('.tm-date');
+    date.textContent = item.date;
+    const author = result_node.querySelector('.tm-author');
+    author.textContent = item.author;
 
-    fragment.appendChild(result);
+    fragment.appendChild(result_node);
   }
 
   resultsBody.appendChild(fragment);
