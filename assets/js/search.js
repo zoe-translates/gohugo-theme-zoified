@@ -41,6 +41,8 @@ async function initSearchIndex() {
   }
 }
 
+const TEMPLATE = document.querySelector('template').content;
+
 function handleSearchQuery(query) {
   if (!query) {
     hideSearchResults();
@@ -85,12 +87,11 @@ function searchSite(query) {
 function getSearchResults(query) {
   if (typeof searchIndex === 'undefined') return [];
 
-  return searchIndex.search(query).flatMap((hit) => {
-    if (hit.ref === 'undefined') return [];
-    let pageMatch = pagesIndex[hit.ref];
+  return searchIndex.search(query).map((hit) => {
+    const pageMatch = pagesIndex[hit.ref];
     pageMatch.score = hit.score;
     pageMatch.metadata = hit.matchData.metadata;
-    return [pageMatch];
+    return pageMatch;
   });
 }
 
@@ -139,7 +140,6 @@ function clearSearchResults() {
 }
 
 function updateSearchResults(query, results) {
-  const template = document.querySelector('template').content;
   const fragment = document.createDocumentFragment();
 
   const resultsBody = document.getElementById('search-results-body');
@@ -147,7 +147,9 @@ function updateSearchResults(query, results) {
 
   for (const id in results) {
     const item = results[id];
-    const result_node = template.cloneNode(true);
+    const result_node = TEMPLATE.cloneNode(true);
+
+    const minfo = parseForPositions(item.metadata);
 
     const article = result_node.querySelector('article');
     article.dataset.score = item.score.toFixed(2);
@@ -155,15 +157,19 @@ function updateSearchResults(query, results) {
     // NOTE: To be replaced by new implementations doing the marking, in all
     // supported search-result fields, using result metadata.
     const a = result_node.querySelector('a');
-    a.textContent = item.title;
     a.href = item.href;
+    a.innerHTML = minfo.title? markTextAt(item.title, minfo.title): item.title;
+
+    const date = result_node.querySelector('.tm-date');
+    date.textContent = item.date;
+
+    const author = result_node.querySelector('.tm-author');
+    author.innerHTML = minfo.author?
+                       markTextAt(item.author, minfo.author):
+                       item.author;
 
     const content = result_node.querySelector('.post-content');
     content.innerHTML = createSearchResultBlurb(query, item.content);
-    const date = result_node.querySelector('.tm-date');
-    date.textContent = item.date;
-    const author = result_node.querySelector('.tm-author');
-    author.textContent = item.author;
 
     fragment.appendChild(result_node);
   }
@@ -171,6 +177,76 @@ function updateSearchResults(query, results) {
   resultsBody.appendChild(fragment);
 
   document.getElementById('results-count').textContent = results.length;
+}
+
+function parseForPositions(metadata) {
+  const result = {};
+
+  // Over each search-query fragment
+  for (const [, matchinfo] of Object.entries(metadata)) {
+    // Over each search field
+    for (const [field, {position: indices}] of Object.entries(matchinfo)) {
+      if (!result[field]) {
+        result[field] = [];
+      }
+      for (const [low, high] of indices) {
+        result[field].push([low, low + high]);
+      }
+    }
+  }
+  let val;
+  for (const k in result) {
+    val = result[k]
+    val.sort((a, b) => a - b);
+    result[k] = mergeIndices(val);
+  }
+  return result;
+}
+
+function mergeIndices(arr) {
+  if (!arr.length) {
+    return arr;
+  }
+
+  const res = [];
+
+  let p = 0;
+  let phigh = arr[0][1];
+  res[0] = arr[0];
+
+  for (const [low, high] of arr.slice(1)) {
+    if (low <= phigh) {
+      if (high > phigh) {
+        res[p][1] = high;
+        phigh = high;
+      }
+    } else {
+      res.push([low, high]);
+      phigh = high;
+      p++;
+    }
+  }
+
+  return res;
+}
+
+// Mark the text using <mark class="search-item">...</mark> at given offsets.
+// The array `marks` is an array of two-member arrays [location, length], the
+// beginning location and the length of each marked part. It is assumed that
+// the indices are non-overlapping and sorted in ascending order. Returns a new
+// string.
+function markTextAt(text, marks) {
+  const acc = [];  // text container
+  let cur = 0;  // current index
+  for (const [low, high] of marks) {
+    acc.push(text.slice(cur, low));
+    acc.push('<mark class="search-item">');
+    acc.push(text.slice(low, high));
+    acc.push('</mark>');
+    cur = high;
+  }
+  acc.push(text.slice(cur));
+  return acc.join("");
 }
 
 function createSearchResultBlurb(query, pageContent) {
