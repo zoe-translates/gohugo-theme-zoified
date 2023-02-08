@@ -41,7 +41,14 @@ async function initSearchIndex() {
   }
 }
 
-const TEMPLATE = document.querySelector('template').content;
+// Fixed elements by ID
+const TEMPLATE = document.getElementById('search-display-tpl').content;
+const SF_CONTAINER = document.getElementById('search-input-container');
+const SERR_CONTAINER = document.getElementById('search-error-container');
+const SERR_CONTENT = document.getElementById('search-error-content');
+const SRES_COUNT = document.getElementById('results-count');
+const SRES_B = document.getElementById('search-results-body');
+const SINPUT = document.getElementById('search');
 
 function handleSearchQuery(query) {
   if (!query) {
@@ -108,23 +115,20 @@ function getLunrSearchQuery(query) {
 }
 
 function displayErrorMessage(message) {
-  const searchContainer = document.querySelector('.search-container');
-  searchContainer.classList.add('form-item-error');
-  searchContainer.classList.remove('focused');
-  document.querySelector('.search-error-message').textContent = message;
-  document.querySelector('.search-error').classList.remove('hide-element');
+  SF_CONTAINER.classList.add('form-item-error');
+  SF_CONTAINER.classList.remove('focused');
+  SERR_CONTENT.textContent = message;
+  SERR_CONTAINER.classList.remove('hide-element');
 }
 
 function hideErrorMessage() {
-  const searchContainer = document.querySelector('.search-container');
-  searchContainer.classList.add('focused');
-  searchContainer.classList.remove('form-item-error');
-  document.querySelector('.search-error').classList.add('hide-element');
-  document.querySelector('.search-error-message').textContent = '';
+  SF_CONTAINER.classList.add('focused');
+  SF_CONTAINER.classList.remove('form-item-error');
+  SERR_CONTAINER.classList.add('hide-element');
+  SERR_CONTENT.textContent = '';
 }
 
 function hideSearchResults() {
-  document.getElementById('site-search').classList.remove('expanded');
   document.getElementById('search-results').classList.add('hide-element');
 }
 
@@ -135,15 +139,14 @@ function renderSearchResults(query, results) {
 }
 
 function clearSearchResults() {
-  document.getElementById('search-results-body').textContent = '';
-  document.getElementById('results-count').textContent = '';
+  SRES_B.textContent = '';
+  SRES_COUNT.textContent = '';
 }
 
 function updateSearchResults(query, results) {
   const fragment = document.createDocumentFragment();
 
-  const resultsBody = document.getElementById('search-results-body');
-  resultsBody.textContent = '';
+  SRES_B.textContent = '';
 
   for (const id in results) {
     const item = results[id];
@@ -174,9 +177,9 @@ function updateSearchResults(query, results) {
     fragment.appendChild(result_node);
   }
 
-  resultsBody.appendChild(fragment);
+  SRES_B.appendChild(fragment);
 
-  document.getElementById('results-count').textContent = results.length;
+  SRES_COUNT.textContent = results.length;
 }
 
 function parseForPositions(metadata) {
@@ -347,7 +350,6 @@ function chunkify(input, chunkSize) {
 
 function showSearchResults() {
   document.getElementById('search-results').classList.remove('hide-element');
-  document.getElementById('site-search').classList.remove('expanded');
 }
 
 function ellipsize(input, maxLength) {
@@ -399,23 +401,19 @@ function getQueryParam(key) {
 initSearchIndex();
 document.addEventListener('DOMContentLoaded', () => {
   const searchForm = document.getElementById('search-form');
-  const searchInput = document.getElementById('search');
 
-  if (searchForm === null || searchInput === null) {
+  if (searchForm === null || SINPUT === null) {
     return;
   }
 
   searchForm.addEventListener('submit', e => e.preventDefault());
-  searchInput.addEventListener('keyup', e => {
+  SINPUT.addEventListener('keyup', e => {
     e.preventDefault();
-    const query = document.getElementById('search')
-      .value
-      .trim()
-      .toLowerCase();
+    const query = SINPUT.value.trim().toLowerCase();
     handleSearchQuery(query);
   });
 
-  searchInput.addEventListener('input', e => {
+  SINPUT.addEventListener('input', e => {
     if (!e.currentTarget.value) {
       hideSearchResults();
     }
@@ -426,7 +424,7 @@ document.addEventListener('indexed', () => {
   const query = getQueryParam('q');
 
   if (query) {
-    document.getElementById('search').value = query;
+    SINPUT.value = query;
     handleSearchQuery(query);
   }
 });

@@ -2,7 +2,7 @@
   <label for="search" aria-details="search-help-details-content">{{ i18n "search_help" }}</label>
   <form role="search" id="search-form">
     <div class="search-wrapper">
-      <div class="search-container form-item">
+      <div class="search-container form-item" id="search-input-container">
         <input
             autofocus
             autocomplete="off"
@@ -34,8 +34,8 @@
 <hr class="search-fold">
 <output for="search" form="search-form"
   aria-relevant="additions" aria-live="off">
-  <div class="search-error hide-element">
-    <p class="search-error-message"></p>
+  <div class="search-error hide-element" id="search-error-container">
+    <p class="search-error-message" id="search-error-content"></p>
   </div>
   <section id="search-results" class="hide-element">
     <div id="search-results-header">
@@ -47,14 +47,14 @@
     <div id="search-results-body" class="post-list"></div>
   </section>
 </output>
-<template>
+<template id="search-display-tpl">
   <article class="post search-result-item" data-score="">
     <header>
       <h2 class="post-title">
         <a href="#" class="search-result-page-title"></a>
       </h2>
       <p class="post-meta">
-        <span class="tm-date"></span> — <span class="tm-author"></span>.
+        <span class="tm-date"></span> — <span class="tm-author"></span>
       </p>
     </header>
     <p class="post-content"></p>
