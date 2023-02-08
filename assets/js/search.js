@@ -415,7 +415,14 @@ function preNormalizeInput(str) {
             .toLowerCase();  // Normalize case
 }
 
+const SCHECKBOX = document.getElementById('sidebar-checkbox');
+
+function inputSoftFocus(e) {
+  SCHECKBOX.checked = 0;
+}
+
 initSearchIndex();
+
 document.addEventListener('DOMContentLoaded', () => {
   const searchForm = document.getElementById('search-form');
 
@@ -424,6 +431,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   searchForm.addEventListener('submit', e => e.preventDefault());
+
+  if (SCHECKBOX !== null) {
+    SINPUT.addEventListener('mouseup', inputSoftFocus);
+  }
+
   SINPUT.addEventListener('keyup', e => {
     e.preventDefault();
     const query = preNormalizeInput(SINPUT.value);
