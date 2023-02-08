@@ -50,13 +50,23 @@ const SRES_COUNT = document.getElementById('results-count');
 const SRES_B = document.getElementById('search-results-body');
 const SINPUT = document.getElementById('search');
 
+let _handledquery;  // Previously handled query input to handleSearchQuery()
+
 function handleSearchQuery(query) {
   if (!query) {
     hideSearchResults();
     return;
   }
 
+  if (typeof _handledquery !== 'undefined') {
+    if (query === _handledquery) {
+      // Do nothing; the stuff is already rendered.
+      return;
+    }
+  }
+
   const results = searchSite(query);
+  _handledquery = query;
   if (!results.length) {
     displayErrorMessage(i18n.noResults);
     hideSearchResults();
@@ -102,16 +112,14 @@ function getSearchResults(query) {
   });
 }
 
+//XXX: This function needs revamp.
 function getLunrSearchQuery(query) {
   const searchTerms = query.split(' ');
   if (searchTerms.length === 1) {
     return query;
   }
-  let searchQuery = '';
-  for (const term of searchTerms) {
-    searchQuery += `+${term} `;
-  }
-  return searchQuery.trim();
+  const searchQuery = searchTerms.map((e) => `+${e}`).join(" ");
+  return searchQuery;
 }
 
 function displayErrorMessage(message) {
@@ -139,14 +147,14 @@ function renderSearchResults(query, results) {
 }
 
 function clearSearchResults() {
-  SRES_B.textContent = '';
+  SRES_B.innerHTML = '';
   SRES_COUNT.textContent = '';
 }
 
 function updateSearchResults(query, results) {
   const fragment = document.createDocumentFragment();
 
-  SRES_B.textContent = '';
+  SRES_B.innerHTML = '';
 
   for (const id in results) {
     const item = results[id];
@@ -192,15 +200,17 @@ function parseForPositions(metadata) {
       if (!result[field]) {
         result[field] = [];
       }
-      for (const [low, high] of indices) {
-        result[field].push([low, low + high]);
+      // Over each (base + offset) index pair
+      for (const [base, offset] of indices) {
+        result[field].push([base, base + offset]);
       }
     }
   }
+
   let val;
   for (const k in result) {
     val = result[k]
-    val.sort((a, b) => a - b);
+    val.sort((a, b) => a[0] - b[0]);
     result[k] = mergeIndices(val);
   }
   return result;
@@ -398,6 +408,13 @@ function getQueryParam(key) {
   return params[key];
 }
 
+function preNormalizeInput(str) {
+  return str.split(/\s/)
+            .filter((e) => !!e)
+            .join(" ")  // Remove extra whitespace
+            .toLowerCase();  // Normalize case
+}
+
 initSearchIndex();
 document.addEventListener('DOMContentLoaded', () => {
   const searchForm = document.getElementById('search-form');
@@ -409,17 +426,19 @@ document.addEventListener('DOMContentLoaded', () => {
   searchForm.addEventListener('submit', e => e.preventDefault());
   SINPUT.addEventListener('keyup', e => {
     e.preventDefault();
-    const query = SINPUT.value.trim().toLowerCase();
+    const query = preNormalizeInput(SINPUT.value);
     handleSearchQuery(query);
   });
 
   SINPUT.addEventListener('input', e => {
     if (!e.currentTarget.value) {
       hideSearchResults();
+      hideErrorMessage();
     }
   });
 });
 
+// Handle search input passed from URL query part.
 document.addEventListener('indexed', () => {
   const query = getQueryParam('q');
 
