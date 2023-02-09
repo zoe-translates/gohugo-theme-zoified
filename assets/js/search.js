@@ -394,6 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.currentTarget.value) {
       hideSearchResults();
       hideErrorMessage();
+      _handledquery = void 0;  // Temp fix for delete-and-repeat.
     }
   });
 });
