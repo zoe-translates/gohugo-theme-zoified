@@ -171,6 +171,7 @@ function updateSearchResults(query, results) {
     a.href = item.href;
     a.innerHTML = minfo.title? markTextAt(item.title, minfo.title): item.title;
 
+    // Date is not a search field.
     const date = result_node.querySelector('.tm-date');
     date.textContent = item.date;
 
@@ -228,15 +229,13 @@ function mergeIndices(arr) {
   res[0] = arr[0];
 
   for (const [low, high] of arr.slice(1)) {
-    if (low <= phigh) {
-      if (high > phigh) {
-        res[p][1] = high;
-        phigh = high;
-      }
-    } else {
+    if (low > phigh) {
       res.push([low, high]);
       phigh = high;
       p++;
+    } else if (high > phigh) {
+      res[p][1] = high;
+      phigh = high;
     }
   }
 
@@ -430,13 +429,13 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  searchForm.addEventListener('submit', e => e.preventDefault());
+  searchForm.addEventListener('submit', (e) => e.preventDefault());
 
   if (SCHECKBOX !== null) {
     SINPUT.addEventListener('mouseup', inputSoftFocus);
   }
 
-  SINPUT.addEventListener('keyup', e => {
+  SINPUT.addEventListener('keyup', (e) => {
     e.preventDefault();
     const query = preNormalizeInput(SINPUT.value);
     handleSearchQuery(query);

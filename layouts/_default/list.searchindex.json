@@ -14,7 +14,7 @@
       {{- if not (in ($.Scratch.Get "urlsAdded") $page.Permalink) -}}
         {{- /* Exclude virtual pages which aren't backed by a file */ -}}
         {{- if .File -}}
-          {{- $publishDate := $page.Date.Format "2 Jan 2006" -}}
+          {{- $publishDate := $page.Date.Format "2 January 2006" -}}
           {{- $pageauth := $page.Params.author | default "Anonymous" -}}
           {{- $pageData := (dict
             "revid" $i
