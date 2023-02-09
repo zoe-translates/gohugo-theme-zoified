@@ -136,6 +136,10 @@ function hideErrorMessage() {
   SERR_CONTENT.textContent = '';
 }
 
+function showSearchResults() {
+  document.getElementById('search-results').classList.remove('hide-element');
+}
+
 function hideSearchResults() {
   document.getElementById('search-results').classList.add('hide-element');
 }
@@ -165,8 +169,6 @@ function updateSearchResults(query, results) {
     const article = result_node.querySelector('article');
     article.dataset.score = item.score.toFixed(2);
 
-    // NOTE: To be replaced by new implementations doing the marking, in all
-    // supported search-result fields, using result metadata.
     const a = result_node.querySelector('a');
     a.href = item.href;
     a.innerHTML = minfo.title? markTextAt(item.title, minfo.title): item.title;
@@ -181,7 +183,19 @@ function updateSearchResults(query, results) {
                        item.author;
 
     const content = result_node.querySelector('.post-content');
-    content.innerHTML = createSearchResultBlurb(query, item.content);
+    let excerpt;
+    if (minfo.content) {
+      // Create excerpt by including the context and the marks within.
+      excerpt = processContentHighlight(item.content, minfo.content);
+    } else {
+      // The search-hit is not in content, create an excerpt anyway.
+      excerpt = item.content.slice(0, 100);  // NOTE: hard-coded length
+      // NOTE: This excerpt should be right-adjusted too.
+      if (item.content.length > 100) {
+        excerpt += " …";
+      }
+    }
+    content.innerHTML = excerpt;
 
     fragment.appendChild(result_node);
   }
@@ -191,6 +205,8 @@ function updateSearchResults(query, results) {
   SRES_COUNT.textContent = results.length;
 }
 
+// Read the per-doc search result to collect the hit-position data, and gather
+// them by field (author, title, content, ...);
 function parseForPositions(metadata) {
   const result = {};
 
@@ -217,6 +233,7 @@ function parseForPositions(metadata) {
   return result;
 }
 
+// Merge any overlapping brackets.
 function mergeIndices(arr) {
   if (!arr.length) {
     return arr;
@@ -243,14 +260,16 @@ function mergeIndices(arr) {
 }
 
 // Mark the text using <mark class="search-item">...</mark> at given offsets.
-// The array `marks` is an array of two-member arrays [location, length], the
-// beginning location and the length of each marked part. It is assumed that
-// the indices are non-overlapping and sorted in ascending order. Returns a new
-// string.
-function markTextAt(text, marks) {
+// The array `marks` is an array of two-member arrays [low, high] bracketing the
+// marked part. Optionally, each bracket can be interpreted as if it was to be
+// shifted back by a base offset. It is assumed that the indices are
+// non-overlapping and sorted in ascending order. Returns a new string.
+function markTextAt(text, marks, base = 0) {
   const acc = [];  // text container
   let cur = 0;  // current index
-  for (const [low, high] of marks) {
+  for (let [low, high] of marks) {
+    low -= base;
+    high -= base;
     acc.push(text.slice(cur, low));
     acc.push('<mark class="search-item">');
     acc.push(text.slice(low, high));
@@ -261,142 +280,74 @@ function markTextAt(text, marks) {
   return acc.join("");
 }
 
-function createSearchResultBlurb(query, pageContent) {
-  // g: Global search
-  // m: Multi-line search
-  // i: Case-insensitive search
-  const searchQueryRegex = new RegExp(createQueryStringRegex(query), 'gmi');
-
-  // Since the blurb is comprised of full sentences containing any search
-  // term, we need a way to identify where each sentence begins/ends. This
-  // regex will be used to produce a list of all sentences from the page
-  // content.
-  const sentenceBoundaryRegex = new RegExp(/(?=[^])(?:\P{Sentence_Terminal}|\p{Sentence_Terminal}(?!['"`\p{Close_Punctuation}\p{Final_Punctuation}\s]))*(?:\p{Sentence_Terminal}+['"`\p{Close_Punctuation}\p{Final_Punctuation}]*|$)/, 'guy');
-  const searchQueryHits = Array.from(
-    pageContent.matchAll(searchQueryRegex),
-    (m) => m.index
-  );
-
-  const sentenceBoundaries = Array.from(
-    pageContent.matchAll(sentenceBoundaryRegex),
-    (m) => m.index
-  );
-
-  let parsedSentence = '';
-  let searchResultText = '';
-  let lastEndOfSentence = 0;
-  for (const hitLocation of searchQueryHits) {
-    if (hitLocation > lastEndOfSentence) {
-      for (let i = 0; i < sentenceBoundaries.length; i++) {
-        if (sentenceBoundaries[i] > hitLocation) {
-          const startOfSentence = i > 0 ? sentenceBoundaries[i - 1] + 1 : 0;
-          const endOfSentence = sentenceBoundaries[i];
-          lastEndOfSentence = endOfSentence;
-          parsedSentence = pageContent.slice(startOfSentence, endOfSentence).trim();
-          searchResultText += `${parsedSentence} ... `;
-          break;
-        }
-      }
-    }
-    const searchResultWords = tokenize(searchResultText);
-    const pageBreakers = searchResultWords.filter((word) => word.length > 50);
-    if (pageBreakers.length > 0) {
-      searchResultText = fixPageBreakers(searchResultText, pageBreakers);
-    }
-    if (searchResultWords.length >= searchConfig.maxSummaryLength) break;
+// Using an array of sorted and disjoint [low, high] marks, create the following
+// data structure:
+//   [{
+//      "context": [c_low, c_high],
+//      "mark": [[low, high], [low, high] ...]
+//    }, ...]
+// where in each object, the "mark"s belong to the "context" blocked delimited
+// by c_low and c_high. The context blocks are kept within the bounds of the
+// text itself.
+function createMarkContext(tlen, raw_marks, c_rad) {
+  if (!raw_marks.length) {
+    return [];
   }
-  return ellipsize(searchResultText, searchConfig.maxSummaryLength).replace(
-    searchQueryRegex,
-    '<mark class="search-item">$&</mark>'
-  );
+
+  // Initial object
+  let [cur_low, cur_high] = raw_marks[0];
+  const res = [{"context": trimContext(cur_low - c_rad, cur_high + c_rad, tlen),
+                "mark": [[cur_low, cur_high]]}];
+  let cur_obj = res[0];
+  let tc_low, tc_high;
+  // For the rest of the input raw_marks array
+  for (const [low, high] of raw_marks.slice(1)) {
+    [tc_low, tc_high] = trimContext(low - c_rad, high + c_rad, tlen);
+    [cur_low, cur_high] = cur_obj.context;
+    if (tc_low <= cur_high) {
+      // Extend current context and put this mark in it.
+      cur_obj.context[1] = tc_high;
+      cur_obj.mark.push([low, high]);
+    } else {
+      // Should open new context with the mark.
+      // But check broken-word at context boundary first (not implemented).
+      // Open next context.
+      cur_obj = {};
+      cur_obj.context = [tc_low, tc_high];
+      cur_obj.mark = [[low, high]];
+      res.push(cur_obj);
+    }
+  }
+  return res;
 }
 
-function createQueryStringRegex(query) {
-  const escaped = RegExp.escape(query);
-  return escaped.split(' ').length === 1 ? `(${escaped})` : `(${escaped.split(' ').join('|')})`;
+function trimContext(low, high, ub) {
+  return [Math.max(0, low), Math.min(high, ub)]
 }
 
-function tokenize(input) {
-  // This is a simple regex that produces a list of words from the text
-  // it is applied to. This will be used to check the number of total words
-  // in the blurb as it is being built.
-  const wordRegex = /\b(\w*)[\W|\s|\b]?/gm;
-
-  const wordMatches = Array.from(input.matchAll(wordRegex), (m) => m);
-  return wordMatches.map((m) => ({
-    word: m[0],
-    start: m.index,
-    end: m.index + m[0].length,
-    length: m[0].length
-  }));
-}
-
-function fixPageBreakers(input, largeWords) {
-  largeWords.forEach((word) => {
-    const chunked = chunkify(word.word, 20);
-    input = input.replace(word.word, chunked);
+// For the given text string, and an array of raw marks [low, high], each
+// bracketing the highlight, generate an excerpt. In each sub-unit (context
+// block) of the excerpt, there are roughly c_rad characters at the beginning
+// and end each, surrounding any highlighted text. The sub-units are joined by
+// the ellipsis, unless it hits either end of the full text.
+function processContentHighlight(text, raw_marks, c_rad = 45) {
+  const acc = [];
+  // Array of contexts-with-marks.
+  const carr = createMarkContext(text.length, raw_marks, c_rad);
+  if (carr[0].context[0] > 0) {
+    acc.push("");
+  }
+  carr.forEach( (cinfo) => {
+    // NOTE: Possibly do context-bound adjustment here.
+    const base = cinfo.context[0];
+    const tb = text.slice(...cinfo.context);
+    const frag = markTextAt(tb, cinfo.mark, base);
+    acc.push(frag);
   });
-  return input;
-}
-
-function chunkify(input, chunkSize) {
-  let output = '';
-  let totalChunks = (input.length / chunkSize) | 0;
-  let lastChunkIsUneven = input.length % chunkSize > 0;
-  if (lastChunkIsUneven) {
-    totalChunks += 1;
+  if (carr[carr.length - 1].context[1] < text.length) {
+    acc.push("");
   }
-  for (let i = 0; i < totalChunks; i++) {
-    let start = i * chunkSize;
-    let end = start + chunkSize;
-    if (lastChunkIsUneven && i === totalChunks - 1) {
-      end = input.length;
-    }
-    output += input.slice(start, end) + ' ';
-  }
-  return output;
-}
-
-function showSearchResults() {
-  document.getElementById('search-results').classList.remove('hide-element');
-}
-
-function ellipsize(input, maxLength) {
-  const words = tokenize(input);
-  if (words.length <= maxLength) {
-    return input;
-  }
-  return input.slice(0, words[maxLength].end) + '...';
-}
-
-// RegExp.escape() polyfill
-//
-// For more see:
-// - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
-// - https://github.com/benjamingr/RegExp.escape/issues/37
-if (!Object.prototype.hasOwnProperty.call(RegExp, 'escape')) {
-  RegExp.escape = function(str) {
-    // $& means the whole matched string
-    return str.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
-  };
-}
-
-// 'string'.matchAll(str, regex) polyfill
-if (!String.prototype.matchAll) {
-  String.prototype.matchAll = function (regex) {
-    function ensureFlag(flags, flag) {
-      return flags.includes(flag) ? flags : flags + flag;
-    }
-    function* matchAll(str, regex) {
-      const localCopy = new RegExp(regex, ensureFlag(regex.flags, 'g'));
-      let match;
-      while ((match = localCopy.exec(str))) {
-        match.index = localCopy.lastIndex - match[0].length;
-        yield match;
-      }
-    }
-    return matchAll(this, regex);
-  };
+  return acc.join(" … ");
 }
 
 function getQueryParam(key) {
