@@ -19,12 +19,10 @@
           {{- $pageData := (dict
             "revid" $i
             "href" $page.RelPermalink
+            "date" $publishDate
             "content" (trim $page.Plain "\n ")
             "title" $page.Title
             "author" $pageauth
-            "date" $publishDate
-            "section" $page.Section
-            "tag" ($page.Params.tags | default slice)
           ) -}}
           {{- $.Scratch.Add "pagesIndex" $pageData -}}
           {{- $.Scratch.Add "urlsAdded" $page.Permalink -}}
