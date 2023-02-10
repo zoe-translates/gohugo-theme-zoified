@@ -49,28 +49,18 @@ const SRES_B = document.getElementById('search-results-body');
 const SINPUT = document.getElementById('search');
 
 let _handledquery;  // Previously handled query input to handleSearchQuery()
+let _lastbad = false;
 
 function handleSearchQuery(query) {
-  if (!query) {
-    hideSearchResults();
-    return;
-  }
-
-  if (typeof _handledquery !== 'undefined') {
-    if (query === _handledquery) {
-      // Do nothing; the stuff is already rendered.
-      return;
-    }
-  }
-
   const results = searchSite(query);
   _handledquery = query;
   if (!results.length) {
+    _lastbad = true;
     displayErrorMessage(i18n.noResults);
     hideSearchResults();
     return;
   }
-
+  _lastbad = false;
   hideErrorMessage();
   renderSearchResults(query, results);
 }
@@ -369,6 +359,45 @@ function inputSoftFocus(e) {
   SCHECKBOX.checked = 0;
 }
 
+function inputEventHandler(e) {
+  // If still composing, consume event and do nothing.
+  if (e.isComposing) {
+    return;
+  }
+  e.preventDefault();
+
+  // If input empty, output should be empty (made hidden) too.
+  if (!SINPUT.value) {
+    hideErrorMessage();
+    hideSearchResults();
+    return;
+  }
+
+  // Pre-normalize input to intercept trivial modifications such as
+  // adding/removing space characters.
+  const query = preNormalizeInput(SINPUT.value);
+  if (!query) {
+    hideErrorMessage();
+    hideSearchResults();
+    return;
+  }
+  // If after pre-norm the query stays the same as last-handled.
+  if (query === _handledquery) {
+    // Result is either "bad" (error) or "not bad" (with results) -- ensured by
+    // the actual query function. Here we simulate this by selectively display
+    // part of the output elements.
+    if (_lastbad) {
+      displayErrorMessage(i18n.noResults);
+    } else {
+      showSearchResults();
+    }
+    return;
+  }
+
+  // Actual, long code-path doing a real search.
+  handleSearchQuery(query);
+}
+
 initSearchIndex();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -384,19 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
     SINPUT.addEventListener('mouseup', inputSoftFocus);
   }
 
-  SINPUT.addEventListener('keyup', (e) => {
-    e.preventDefault();
-    const query = preNormalizeInput(SINPUT.value);
-    handleSearchQuery(query);
-  });
-
-  SINPUT.addEventListener('input', e => {
-    if (!e.currentTarget.value) {
-      hideSearchResults();
-      hideErrorMessage();
-      _handledquery = void 0;  // Temp fix for delete-and-repeat.
-    }
-  });
+  SINPUT.addEventListener('input', inputEventHandler);
 });
 
 // Handle search input passed from URL query part.
