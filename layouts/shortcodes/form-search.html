@@ -33,15 +33,14 @@
   <div class="search-error hide-element" id="search-error-container">
     <p class="search-error-message" id="search-error-content"></p>
   </div>
-  <section id="search-results" class="hide-element">
+  <div id="search-results" class="hide-element">
     <div id="search-results-header">
       <div class="search-query search-query-right">
-        <span id="results-count-text">{{ i18n "search_results" }} </span>
-	<span id="results-count"></span>
+        <span id="results-count-text">{{ i18n "search_results" }} </span><span id="results-count"></span>
       </div>
     </div>
     <div id="search-results-body" class="post-list"></div>
-  </section>
+  </div>
 </output>
 <template id="search-display-tpl">
   <article class="post search-result-item" data-score="">
