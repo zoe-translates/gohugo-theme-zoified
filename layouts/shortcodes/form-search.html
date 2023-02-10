@@ -68,7 +68,7 @@
 {{- /* Add lunr multilanguage support. */ -}}
 {{- $lunrLanguages := site.Params.search.languages | default slice -}}
 {{- if gt (len $lunrLanguages) 0 -}}
-    {{- $lunrSearch = $lunrSearch | append (resources.Get "js/vendor/lunr.multi.js") -}}
+
     {{- $lunrSearch = $lunrSearch | append (resources.Get "js/vendor/lunr.stemmer.support.js") -}}
 
     {{- range $lunrLanguages -}}
@@ -78,6 +78,9 @@
             {{- $lunrSearch = $lunrSearch | append (resources.Get (printf "js/vendor/lunr.%s.js" $lang)) -}}
         {{- end -}}
     {{- end -}}
+
+    {{- $lunrSearch = $lunrSearch | append (resources.Get "js/vendor/lunr.multi.js") -}}
+
 {{- end -}}
 
 {{- /* Build lunr. */ -}}

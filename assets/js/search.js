@@ -23,6 +23,7 @@ async function initSearchIndex() {
 
         this.use(pipeline);
       }
+      this.use(normalizeDiac);
 
       this.field('author');
       this.field('title');
@@ -37,6 +38,18 @@ async function initSearchIndex() {
   } catch (e) {
     console.log(e); // eslint-disable-line no-console
   }
+}
+
+// See https://lunrjs.com/guides/customising.html#pipeline-functions
+const RE_DIA = new RegExp(/[\u0300-\u036f]/g);
+function normalizeDiac(builder) {
+  function pipelineFunction(token) {
+    let s = token.toString();
+    return token.update(() => s.normalize("NFD").replace(RE_DIA, ""));
+  };
+  lunr.Pipeline.registerFunction(pipelineFunction, "normalizeDiac");
+  builder.pipeline.before(lunr.stemmer, pipelineFunction);
+  builder.searchPipeline.before(lunr.stemmer, pipelineFunction);
 }
 
 // Fixed elements by ID
@@ -431,7 +444,7 @@ document.addEventListener('indexed', () => {
     SINPUT.value = query;
     const pnQuery = preNormalizeInput(query);
     if (pnQuery) {
-      handleSearchQuery();
+      handleSearchQuery(pnQuery);
     }
   }
 });
