@@ -80,12 +80,7 @@ function searchSite(query) {
     }
     throw e;
   }
-
-  if (results.length > 0) {
-    return results;
-  }
-
-  return [];
+  return results;
 }
 
 function getSearchResults(query) {
@@ -99,11 +94,16 @@ function getSearchResults(query) {
   });
 }
 
+const RE_HAN = new RegExp("\\p{sc=Han}", "u");
+
 function _notTooShort(text) {
-  if (text.startsWith("+") || text.startsWith("-")) {
-    return text.length > 2;
+  if (!RE_HAN.test(text)) {
+    if (text.startsWith("+") || text.startsWith("-")) {
+      return text.length > 2;
+    }
+    return text.length > 1;
   }
-  return text.length > 1;
+  return true;
 }
 
 function getLunrSearchQuery(query) {
@@ -429,6 +429,9 @@ document.addEventListener('indexed', () => {
 
   if (query) {
     SINPUT.value = query;
-    handleSearchQuery(query);
+    const pnQuery = preNormalizeInput(query);
+    if (pnQuery) {
+      handleSearchQuery();
+    }
   }
 });
