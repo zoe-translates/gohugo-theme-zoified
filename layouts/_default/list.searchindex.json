@@ -20,7 +20,7 @@
             "revid" $i
             "href" $page.RelPermalink
             "date" $publishDate
-            "content" (trim $page.Plain "\n ")
+            "content" (trim $page.Plain "\n " | htmlUnescape)
             "title" $page.Title
             "author" $pageauth
           ) -}}
