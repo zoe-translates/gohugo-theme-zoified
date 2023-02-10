@@ -66,8 +66,11 @@ function handleSearchQuery(query) {
 }
 
 function searchSite(query) {
-  const originalQuery = query;
   const lunrQuery = getLunrSearchQuery(query);
+  if (!lunrQuery) {
+    return [];
+  }
+
   let results;
   try {
     results = getSearchResults(lunrQuery);
@@ -80,10 +83,6 @@ function searchSite(query) {
 
   if (results.length > 0) {
     return results;
-  }
-
-  if (lunrQuery !== originalQuery) {
-    return getSearchResults(originalQuery);
   }
 
   return [];
@@ -100,14 +99,22 @@ function getSearchResults(query) {
   });
 }
 
-//XXX: This function needs revamp.
-function getLunrSearchQuery(query) {
-  const searchTerms = query.split(' ');
-  if (searchTerms.length === 1) {
-    return query;
+function _notTooShort(text) {
+  if (text.startsWith("+") || text.startsWith("-")) {
+    return text.length > 2;
   }
-  const searchQuery = searchTerms.map((e) => `+${e}`).join(" ");
-  return searchQuery;
+  return text.length > 1;
+}
+
+function getLunrSearchQuery(query) {
+  // Filter out terms that are too short (one letter).
+  const searchTerms = query.split(' ').filter(_notTooShort);
+  // If all of them starts with the minus, it is almost guaranteed there will be
+  // too many hits.
+  if (searchTerms.every((w) => w.startsWith("-"))) {
+    return "";
+  }
+  return searchTerms.join(" ");
 }
 
 function displayErrorMessage(message) {
