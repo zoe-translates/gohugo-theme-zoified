@@ -99,7 +99,7 @@
 {{- $siteSearch = $siteSearch | append (resources.Get "js/search.js") -}}
 {{- $siteSearch = $siteSearch | resources.Concat "js/search-bundle.js" -}}
 
-{{- $siteSearch = $siteSearch | js.Build (dict "format" "iife" "minify" hugo.IsProduction "target" "es2015" "params" $searchParams) -}}
+{{- $siteSearch = $siteSearch | js.Build (dict "format" "iife" "minify" hugo.IsProduction "target" "es2017" "params" $searchParams) -}}
 
 {{- if or (site.Params.assets.disable_fingerprinting) (not hugo.IsProduction) }}
     <script src="{{ $siteSearch.RelPermalink }}"></script>

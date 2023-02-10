@@ -1,14 +1,13 @@
 {{ define "main" }}
-
-{{ with .Content }}
+{{- with .Content }}
     <div class="introduction">
         {{ . }}
     </div>
     <hr>
-    {{ partial "mini-toc" . }}
-{{ else }}
-    {{ $mainSections := site.Params.mainSections | default (slice "posts") }}
-    {{ $paginator := .Paginate (where site.RegularPages.ByDate.Reverse "Section" "in" $mainSections) }}
+    {{- partial "mini-toc" . -}}
+{{- else -}}
+    {{- $mainSections := site.Params.mainSections | default (slice "posts") -}}
+    {{- $paginator := .Paginate (where site.RegularPages.ByDate.Reverse "Section" "in" $mainSections) -}}
     <div class="articles">
         {{ with .Title }}<h1 class="page-title">{{ . }}</h1>{{ end }}
 
@@ -16,6 +15,5 @@
             {{ .Render "teaser" }}
         {{ end }}
     </div>
-{{ end }}
-
+{{- end -}}
 {{ end }}

@@ -19,13 +19,13 @@
         {{ .Content }}
     </div>
 
+    {{- if eq $postType "site-function-page" | not }}
     <footer class="page-footer">
-    {{- if eq $postType "site-function-page" | not -}}
-    <div class="page-date-slug">{{- partial "post-meta/date.html" . -}}</div>
-    {{- end -}}
-    {{- if not (in (slice "drama" "narrative" "poem" "site-function-page") $postType) -}}
-        {{- partial "post-tags.html" . -}}
-    {{- end -}}
+      <div class="page-date-slug">{{- partial "post-meta/date.html" . -}}</div>
+      {{- if not (in (slice "drama" "narrative" "poem" "site-function-page") $postType) }}
+      <div class="tags-container">{{- partial "post-tags.html" . -}}</div>
+      {{- end }}
     </footer>
+    {{- end }}
 </article>
 {{ end }}

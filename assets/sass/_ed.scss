@@ -557,7 +557,7 @@ div.narrative,
 }
 
 /* TOC listing */
-div.toc {
+.toc {
   margin-bottom: 4rem;
 }
 
@@ -574,39 +574,38 @@ ol.toc-listing {
   }
 }
 
-li.toc-listing-item {
-    border-width: 0;
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    border-image: linear-gradient(to right, #fff, #fff 40%, #bbb 90%, #eee 100%) 1;
-}
-
-.toc-item-container {
+.toc-listing-item {
+  border-width: 0;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-image: linear-gradient(to right, #fff, #fff 40%, #bbb 90%, #eee 100%) 1;
   display: flex;
   flex-flow: row nowrap;
   align-items: flex-end;
-
-  .post-meta {
-    min-width: 10ch;
-    margin-right: 0.6ch;
-    }
-
-  .toc-item-link {
-    font-size: 90%;
-    margin-right: 0.5em;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .toc-label {
-    font-style: italic;
-    font-size: 85%;
-    margin-left: auto;
-    margin-right: 0;
-    white-space: nowrap;
 }
 
+.post-meta {
+  min-width: 10ch;
+  margin-right: 0.6ch;
+  margin-bottom: 0;
+  font-size: .85rem;
+  color: $text-light-color;
+}
+
+.toc-item-link {
+  font-size: 90%;
+  margin-right: 0.5em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.toc-label {
+  font-style: italic;
+  font-size: 85%;
+  margin-left: auto;
+  margin-right: 0;
+  white-space: nowrap;
 }
 
 /*
