@@ -42,14 +42,19 @@ async function initSearchIndex() {
 
 // See https://lunrjs.com/guides/customising.html#pipeline-functions
 const RE_DIA = new RegExp(/[\u0300-\u036f]/g);
+
+function _dediac(str) {
+  return str.normalize("NFD").replace(RE_DIA, "");
+}
+
 function normalizeDiac(builder) {
   function pipelineFunction(token) {
     let s = token.toString();
-    return token.update(() => s.normalize("NFD").replace(RE_DIA, ""));
+    return token.update(() => _dediac(s));
   };
   lunr.Pipeline.registerFunction(pipelineFunction, "normalizeDiac");
   builder.pipeline.before(lunr.stemmer, pipelineFunction);
-  builder.searchPipeline.before(lunr.stemmer, pipelineFunction);
+  // Not necessary to add this to search input pipeline.
 }
 
 // Fixed elements by ID
@@ -367,10 +372,11 @@ function getQueryParam(key) {
 }
 
 function preNormalizeInput(str) {
-  return str.split(/\s/)
-            .filter((e) => !!e)
-            .join(" ")  // Remove extra whitespace
-            .toLowerCase();  // Normalize case
+  return _dediac(str)
+                    .split(/\s/)
+                    .filter((e) => !!e)
+                    .join(" ")  // Remove extra whitespace
+                    .toLowerCase();  // Normalize case
 }
 
 const SCHECKBOX = document.getElementById('sidebar-checkbox');
