@@ -18,9 +18,15 @@
       {{ i18n "search_more_options" }}
     </summary>
     <ul class="details-content" id="search-help-details-content">
-      <li>Search within fields, for example, <code>title:two</code> for posts
-        with the word “two” in their titles. Supported fields are “author”,
-        “title”, and “content”.</li>
+      <li>When multiple terms are given, a result contains at least one of
+        them.
+      <li>A plus sign right before a term makes it mandatory.<br>Example:
+        <code>love +fun</code>.</li>
+      <li>A minus sign before a term excludes it.<br>Example:
+        <code>love -friend</code> for posts with “love” but not “friend”.</li>
+      <li>You can confine a term to a specific field. Supported fields are
+        “author”, “title”, and “content”.<br>Example: <code>title:two</code>
+        for the word “two” in the title.</li>
       <li>When using fields, type a hyphen in the place of the space when
         entering a multi-word term. For example:
         <code>author:marina-tsvetaeva</code>.</li>

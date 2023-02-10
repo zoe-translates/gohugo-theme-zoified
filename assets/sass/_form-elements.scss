@@ -188,20 +188,24 @@ hr.search-fold {
 }
 
 // Search extended help.
+.details-content {
+  padding: 0 1.5rem;
+}
+
 .search-help-details {
-    @include transition(background-color 0.5s ease-in-out);
-    font-size: 85%;
+  font-size: 85%;
+  @include transition(background-color 0.5s ease-in-out);
 }
 
 .search-help-details[open] {
-    background-color: rgba(255, 255, 200, 0.85);
+  background-color: rgba(255, 255, 200, 0.85);
 }
 
 .search-help-details[open] .search-help-details-summary::after {
-    content: " (click to close)";
+  content: " (click to close)";
 }
 
 .search-help-details-summary::after {
-    content: " (click to open)";
+  content: " (click to open)";
 }
 
