@@ -12,8 +12,7 @@
   width: 100%;
   padding: 0.5em;
 
-  @include transition(all 0.15s ease-in-out);
-  @include appearance(none);
+  @include transition(all 0.2s ease-in-out);
 
   @include mq(tabletp) {
     font-size: 1.15em;
@@ -165,26 +164,17 @@ form input:-moz-ui-invalid {
   display: none;
 }
 
-#search-form .search-error.hide-element {
-  display: none;
-}
-
-.search-item {
+.search-hit {
   background-color: rgb(255, 255, 84);
 }
 
-.search-error,
-.search-error-message {
-  @include transition(all .5s ease-out);
+.search-form > label, .search-help-details {
+  display: block;
+  margin: 0.25rem;
 }
 
-.search-form > label, .search-form > details {
-    display: block;
-    margin: 0.25rem;
-}
-
-hr.search-fold {
-    margin: 0.5rem 0;
+.search-fold {
+  margin: 0.5rem 0;
 }
 
 // Search extended help.
@@ -194,11 +184,16 @@ hr.search-fold {
 
 .search-help-details {
   font-size: 85%;
-  @include transition(background-color 0.5s ease-in-out);
+  @include transition(background-color 0.5s ease-in);
 }
 
 .search-help-details[open] {
   background-color: rgba(255, 255, 200, 0.85);
+}
+
+.details-content {
+  max-height: 35vh;
+  overflow-y: scroll;
 }
 
 .search-help-details[open] .search-help-details-summary::after {

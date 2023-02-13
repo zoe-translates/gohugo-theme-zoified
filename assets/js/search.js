@@ -58,10 +58,14 @@ function normalizeDiac(builder) {
 }
 
 // Fixed elements by ID
-const TEMPLATE = document.getElementById('search-display-tpl').content;
+const ITEM_PROTO = document.getElementById('search-display-tpl')
+                           .content.querySelector("article");
+const MARK_PROTO = document.createElement("mark");
+MARK_PROTO.className = "search-hit";
 const SF_CONTAINER = document.getElementById('search-input-container');
 const SERR_CONTAINER = document.getElementById('search-error-container');
 const SERR_CONTENT = document.getElementById('search-error-content');
+const SRES_CONTAINER = document.getElementById('search-results');
 const SRES_COUNT = document.getElementById('results-count');
 const SRES_B = document.getElementById('search-results-body');
 const SINPUT = document.getElementById('search');
@@ -74,7 +78,7 @@ function handleSearchQuery(query) {
   _handledquery = query;
   if (!results.length) {
     _lastbad = true;
-    displayErrorMessage(i18n.noResults);
+    showErrorMessage(i18n.noResults);
     hideSearchResults();
     return;
   }
@@ -135,26 +139,24 @@ function getLunrSearchQuery(query) {
   return searchTerms.join(" ");
 }
 
-function displayErrorMessage(message) {
+function showErrorMessage(message) {
   SF_CONTAINER.classList.add('form-item-error');
-  SF_CONTAINER.classList.remove('focused');
   SERR_CONTENT.textContent = message;
   SERR_CONTAINER.classList.remove('hide-element');
 }
 
 function hideErrorMessage() {
-  SF_CONTAINER.classList.add('focused');
   SF_CONTAINER.classList.remove('form-item-error');
   SERR_CONTAINER.classList.add('hide-element');
   SERR_CONTENT.textContent = '';
 }
 
 function showSearchResults() {
-  document.getElementById('search-results').classList.remove('hide-element');
+  SRES_CONTAINER.classList.remove('hide-element');
 }
 
 function hideSearchResults() {
-  document.getElementById('search-results').classList.add('hide-element');
+  SRES_CONTAINER.classList.add('hide-element');
 }
 
 function renderSearchResults(query, results) {
@@ -164,58 +166,68 @@ function renderSearchResults(query, results) {
 }
 
 function clearSearchResults() {
-  SRES_B.innerHTML = '';
+  SRES_B.textContent = '';
   SRES_COUNT.textContent = '';
 }
 
+function _fill_with_text(node, str, marks) {
+  const ts = [];
+  if (marks) {
+    addMarkedTextInto(ts, str, marks);
+  } else {
+    ts.push(str);
+  }
+  node.append(...ts);
+}
+
+const ARTICLE_COLLECTION = new DocumentFragment();
 function updateSearchResults(query, results) {
-  const fragment = document.createDocumentFragment();
 
-  SRES_B.innerHTML = '';
-
-  for (const id in results) {
-    const item = results[id];
-    const result_node = TEMPLATE.cloneNode(true);
+  for (let i = 0; i < results.length; i++) {
+    const item = results[i];
+    const article_node = ITEM_PROTO.cloneNode(true);
 
     const minfo = parseForPositions(item.metadata);
 
-    const article = result_node.querySelector('article');
-    article.dataset.score = item.score.toFixed(2);
+    // Title with hyperlink to the page with hits.
+    const title_link = article_node.querySelector('a');
+    _fill_with_text(title_link, item.title, minfo.title);
+    title_link.href = item.href;
 
-    const a = result_node.querySelector('a');
-    a.href = item.href;
-    a.innerHTML = minfo.title? markTextAt(item.title, minfo.title): item.title;
+    // Date is not a search field, simply add text.
+    const date_span = article_node.querySelector('.tm-date');
+    date_span.textContent = item.date;
 
-    // Date is not a search field.
-    const date = result_node.querySelector('.tm-date');
-    date.textContent = item.date;
+    // Author may be highlighted.
+    const author_span = article_node.querySelector('.tm-author');
+    _fill_with_text(author_span, item.author, minfo.author);
 
-    const author = result_node.querySelector('.tm-author');
-    author.innerHTML = minfo.author?
-                       markTextAt(item.author, minfo.author):
-                       item.author;
-
-    const content = result_node.querySelector('.post-content');
-    let excerpt;
+    // Excerpt content
+    const content_p = article_node.querySelector('.post-content');
     if (minfo.content) {
-      // Create excerpt by including the context and the marks within.
-      excerpt = processContentHighlight(item.content, minfo.content);
+      ts = processContentHighlight(item.content, minfo.content);
     } else {
       // The search-hit is not in content, create an excerpt anyway.
-      excerpt = item.content.slice(0, 100);  // NOTE: hard-coded length
+      ts = [item.content.slice(0, 100)];  // NOTE: hard-coded.
       // NOTE: This excerpt should be right-adjusted too.
       if (item.content.length > 100) {
-        excerpt += " …";
+        ts.push(" …");
       }
     }
-    content.innerHTML = excerpt;
+    content_p.append(...ts);
 
-    fragment.appendChild(result_node);
+    article_node.dataset.score = item.score.toFixed(2);
+    article_node.normalize();
+
+    // Collect this article into the frag.
+    ARTICLE_COLLECTION.appendChild(article_node);
   }
 
-  SRES_B.appendChild(fragment);
+  SRES_B.textContent = '';
 
-  SRES_COUNT.textContent = results.length;
+  SRES_B.appendChild(ARTICLE_COLLECTION);
+
+  SRES_COUNT.textContent = results.length.toString();
 }
 
 // Read the per-doc search result to collect the hit-position data, and gather
@@ -237,11 +249,9 @@ function parseForPositions(metadata) {
     }
   }
 
-  let val;
-  for (const k in result) {
-    val = result[k]
-    val.sort((a, b) => a[0] - b[0]);
-    result[k] = mergeIndices(val);
+  for (const [k, v] of Object.entries(result)) {
+    v.sort((a, b) => a[0] - b[0]);
+    result[k] = mergeIndices(v);
   }
   return result;
 }
@@ -272,25 +282,29 @@ function mergeIndices(arr) {
   return res;
 }
 
-// Mark the text using <mark class="search-item">...</mark> at given offsets.
-// The array `marks` is an array of two-member arrays [low, high] bracketing the
-// marked part. Optionally, each bracket can be interpreted as if it was to be
-// shifted back by a base offset. It is assumed that the indices are
-// non-overlapping and sorted in ascending order. Returns a new string.
-function markTextAt(text, marks, base = 0) {
-  const acc = [];  // text container
+// Create a node in a <mark class="search-item"> element with the text as its
+// content.
+function newHighlight(text) {
+  const mark = MARK_PROTO.cloneNode(false);
+  mark.textContent = text;
+  return mark;
+}
+
+// Mark the text str using <mark class="search-item">...</mark> at given
+// offsets. The array `marks` is an array of two-member arrays [low, high]
+// bracketing the marked part. Optionally, each bracket can be interpreted as if
+// it was to be shifted back by a base offset. It is assumed that the indices
+// are non-overlapping and sorted in ascending order.
+function addMarkedTextInto(arr, str, marks, base = 0) {
   let cur = 0;  // current index
   for (let [low, high] of marks) {
     low -= base;
     high -= base;
-    acc.push(text.slice(cur, low));
-    acc.push('<mark class="search-item">');
-    acc.push(text.slice(low, high));
-    acc.push('</mark>');
+    arr.push(str.slice(cur, low));
+    arr.push(newHighlight(str.slice(low, high)));
     cur = high;
   }
-  acc.push(text.slice(cur));
-  return acc.join("");
+  arr.push(str.slice(cur));
 }
 
 // Using an array of sorted and disjoint [low, high] marks, create the following
@@ -348,19 +362,25 @@ function processContentHighlight(text, raw_marks, c_rad = 45) {
   // Array of contexts-with-marks.
   const carr = createMarkContext(text.length, raw_marks, c_rad);
   if (carr[0].context[0] > 0) {
-    acc.push("");
+    acc.push("… ");
   }
-  carr.forEach( (cinfo) => {
-    // NOTE: Possibly do context-bound adjustment here.
+
+  const last = carr.length - 1;
+  for (let i = 0; i <= last; i++) {
+    const cinfo = carr[i];
     const base = cinfo.context[0];
-    const tb = text.slice(...cinfo.context);
-    const frag = markTextAt(tb, cinfo.mark, base);
-    acc.push(frag);
-  });
-  if (carr[carr.length - 1].context[1] < text.length) {
-    acc.push("");
+    let tb = text.slice(...cinfo.context);
+    if (i != last) {
+      tb += " … ";
+    }
+
+    addMarkedTextInto(acc, tb, cinfo.mark, base);
   }
-  return acc.join(" … ");
+
+  if (carr[carr.length - 1].context[1] < text.length) {
+    acc.push(" …");
+  }
+  return acc;
 }
 
 function getQueryParam(key) {
@@ -372,11 +392,10 @@ function getQueryParam(key) {
 }
 
 function preNormalizeInput(str) {
-  return _dediac(str)
-                    .split(/\s/)
-                    .filter((e) => !!e)
-                    .join(" ")  // Remove extra whitespace
-                    .toLowerCase();  // Normalize case
+  return _dediac(str).split(/\s/)
+                     .filter((e) => !!e)
+                     .join(" ")  // Remove extra whitespace
+                     .toLowerCase();  // Normalize case
 }
 
 const SCHECKBOX = document.getElementById('sidebar-checkbox');
@@ -390,7 +409,6 @@ function inputEventHandler(e) {
   if (e.isComposing) {
     return;
   }
-  e.preventDefault();
 
   // If input empty, output should be empty (made hidden) too.
   if (!SINPUT.value) {
@@ -413,7 +431,7 @@ function inputEventHandler(e) {
     // the actual query function. Here we simulate this by selectively display
     // part of the output elements.
     if (_lastbad) {
-      displayErrorMessage(i18n.noResults);
+      showErrorMessage(i18n.noResults);
     } else {
       showSearchResults();
     }
@@ -423,8 +441,6 @@ function inputEventHandler(e) {
   // Actual, long code-path doing a real search.
   handleSearchQuery(query);
 }
-
-initSearchIndex();
 
 document.addEventListener('DOMContentLoaded', () => {
   const searchForm = document.getElementById('search-form');
@@ -436,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
   searchForm.addEventListener('submit', (e) => e.preventDefault());
 
   if (SCHECKBOX !== null) {
-    SINPUT.addEventListener('mouseup', inputSoftFocus);
+    SINPUT.addEventListener('click', inputSoftFocus);
   }
 
   SINPUT.addEventListener('input', inputEventHandler);
@@ -447,10 +463,12 @@ document.addEventListener('indexed', () => {
   const query = getQueryParam('q');
 
   if (query) {
-    SINPUT.value = query;
     const pnQuery = preNormalizeInput(query);
     if (pnQuery) {
       handleSearchQuery(pnQuery);
     }
+    SINPUT.value = query;
   }
 });
+
+initSearchIndex();
