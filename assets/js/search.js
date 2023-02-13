@@ -183,7 +183,7 @@ function _fill_with_text(node, str, marks) {
 const ARTICLE_COLLECTION = new DocumentFragment();
 function updateSearchResults(query, results) {
 
-  for (let i = 0; i < results.length; i++) {
+  for (let i = 0; i < Math.min(results.length, searchConfig.maxResults); i++) {
     const item = results[i];
     const article_node = ITEM_PROTO.cloneNode(true);
 
