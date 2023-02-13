@@ -108,12 +108,7 @@ function searchSite(query) {
 function getSearchResults(query) {
   if (typeof searchIndex === 'undefined') return [];
 
-  return searchIndex.search(query).map((hit) => {
-    const pageMatch = pagesIndex[hit.ref];
-    pageMatch.score = hit.score;
-    pageMatch.metadata = hit.matchData.metadata;
-    return pageMatch;
-  });
+  return searchIndex.search(query);
 }
 
 const RE_HAN = new RegExp("\\p{sc=Han}", "u");
@@ -184,50 +179,51 @@ const ARTICLE_COLLECTION = new DocumentFragment();
 function updateSearchResults(query, results) {
 
   for (let i = 0; i < Math.min(results.length, searchConfig.maxResults); i++) {
-    const item = results[i];
+    const resinfo = results[i];
+    const hit = pagesIndex[resinfo.ref];
+    const minfo = parseForPositions(resinfo.matchData.metadata);
+
     const article_node = ITEM_PROTO.cloneNode(true);
-
-    const minfo = parseForPositions(item.metadata);
-
     // Title with hyperlink to the page with hits.
     const title_link = article_node.querySelector('a');
-    _fill_with_text(title_link, item.title, minfo.title);
-    title_link.href = item.href;
+    _fill_with_text(title_link, hit.title, minfo.title);
+    title_link.href = hit.href;
 
     // Date is not a search field, simply add text.
     const date_span = article_node.querySelector('.tm-date');
-    date_span.textContent = item.date;
+    date_span.textContent = hit.date;
 
     // Author may be highlighted.
     const author_span = article_node.querySelector('.tm-author');
-    _fill_with_text(author_span, item.author, minfo.author);
+    _fill_with_text(author_span, hit.author, minfo.author);
 
     // Excerpt content
     const content_p = article_node.querySelector('.post-content');
+    let ts;
     if (minfo.content) {
-      ts = processContentHighlight(item.content, minfo.content);
+      ts = processContentHighlight(hit.content, minfo.content);
     } else {
       // The search-hit is not in content, create an excerpt anyway.
-      ts = [item.content.slice(0, 100)];  // NOTE: hard-coded.
+      ts = [hit.content.slice(0, 100)];  // NOTE: hard-coded.
       // NOTE: This excerpt should be right-adjusted too.
-      if (item.content.length > 100) {
+      if (hit.content.length > 100) {
         ts.push(" …");
       }
     }
     content_p.append(...ts);
 
-    article_node.dataset.score = item.score.toFixed(2);
+    article_node.dataset.score = resinfo.score.toFixed(2);
     article_node.normalize();
 
     // Collect this article into the frag.
     ARTICLE_COLLECTION.appendChild(article_node);
   }
 
+  SRES_COUNT.textContent = results.length.toString();
+
   SRES_B.textContent = '';
 
   SRES_B.appendChild(ARTICLE_COLLECTION);
-
-  SRES_COUNT.textContent = results.length.toString();
 }
 
 // Read the per-doc search result to collect the hit-position data, and gather
