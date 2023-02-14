@@ -10,11 +10,11 @@
   <p class="post-content pre-blurb">
     {{- .Summary -}}
   </p>
-  {{ if site.Params.readmore -}}
-    {{- if .Truncated -}}
+  {{- if site.Params.readmore }}
+    {{- if .Truncated }}
   <footer>
     <a href="{{ .RelPermalink }}" class="read-more">{{ i18n "more" }}</a>
   </footer>
-    {{- end -}}
+    {{- end }}
   {{- end }}
 </article>

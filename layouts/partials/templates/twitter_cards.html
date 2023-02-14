@@ -1,4 +1,4 @@
-    <!-- Twitter Card metadata -->
+{{/* Twitter Card metadata */}}
     <meta name="twitter:title" content="{{- partial "title.html" . -}}">
     <meta name="twitter:description" content="{{ (partial "description.html" . ) }}">
 
@@ -15,4 +15,4 @@
     {{- $logo := resources.Get (site.Params.assets.logo | default "/img/open-graph-logo.png" ) }}
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="{{ $logo.Permalink }}">
-    {{- end -}}
+{{- end -}}

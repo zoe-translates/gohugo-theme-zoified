@@ -6,21 +6,20 @@
         {{ with .Title }}{{ i18n "publications_tagged" . }}{{ end }}
     </h1>
 
-    {{/* Render category content if any */}}
-    {{ with .Content }}
-        <div class="section-content">
-            {{ .Content }}
-        </div>
-    {{ end }}
+    {{- /* Render category content if any */}}
+    {{- with .Content }}
+    <div class="section-content">
+        {{ .Content }}
+    </div>
+    {{- end }}
 
-    {{/* Render posts list */}}
+    {{- /* Render posts list */}}
     <div class="post-list">
-        {{ range .Paginator.Pages }}
-            {{ .Render "teaser" }}
-        {{ end }}
+        {{- range .Paginator.Pages }}
+{{ .Render "teaser" }}
+        {{- end -}}
 
-        {{ partial "pagination.html" . }}
+        {{- partial "pagination.html" . }}
     </div>
 </div>
-
-{{ end }}
+{{- end -}}

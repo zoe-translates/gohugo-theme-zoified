@@ -1,4 +1,4 @@
-{{- range .AlternativeOutputFormats }}
+{{ range .AlternativeOutputFormats }}
     <link rel="{{ .Rel }}" type="{{ .MediaType.Type | html }}" href="{{ .RelPermalink | safeURL }}" title="{{ .Name }}">
 {{- end }}
     <link rel="manifest" type="application/manifest+json" href="{{ "manifest.webmanifest" | relURL }}" title="Manifest">
