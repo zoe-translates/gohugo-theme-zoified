@@ -52,8 +52,8 @@
 [search_help]
   other = "Please enter the search terms. Results will appear below."
 
-[search_more_options]
-  other = "More options"
+[search_more_help]
+  other = "More help"
 
 [search_site]
   other = 'Text input area for search terms'

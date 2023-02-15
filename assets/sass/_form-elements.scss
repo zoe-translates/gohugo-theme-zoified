@@ -178,6 +178,11 @@ form input:-moz-ui-invalid {
   font-size: 100%;
   max-width: 8rem;
   width: 20%;
+  &:hover, &:focus {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-thickness: 0.1em;
+  }
 }
 
 .search-hit {
@@ -205,4 +210,12 @@ form input:-moz-ui-invalid {
 
 .search-help-details[open] {
   background-color: rgba(255, 255, 200, 0.85);
+  .search-help-details-summary {
+    cursor: pointer;
+  }
+}
+
+.search-help-details-summary {
+  font-size: 100%;
+  cursor: help;
 }
