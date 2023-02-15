@@ -11,14 +11,14 @@
       <div class="wrap">
         <header class="masthead">
           <div class="container">
-            <h3 class="masthead-title">
+            <div class="masthead-title">
               {{- if .IsHome -}}
-              <span class="site-title">{{- site.Title -}}</span>
+              <span class="site-title-text">{{- site.Title -}}</span>
               {{- else -}}
-              <a href="{{ site.Home.RelPermalink }}" title="{{ i18n "home" }}">{{ site.Title }}</a>
+              <a class="site-title-text" href="{{ site.Home.RelPermalink }}" title="{{ i18n "home" }}">{{ site.Title }}</a>
               {{- end -}}
-              <br><small>{{ site.Params.tagline }}</small>
-            </h3>
+              <p><small>{{ site.Params.tagline }}</small></p>
+            </div>
           </div>
         </header>
 

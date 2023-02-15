@@ -98,7 +98,7 @@ a {
 }
 
 /* Links */
-a, .text-title a, span.site-title {
+a, span.site-title-text {
   color: $link-color;
 }
 
@@ -114,7 +114,6 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: .5rem;
   font-weight: normal;
   color: $heading-color;
-  letter-spacing: -.025rem;
   line-height: 1.25;
   text-rendering: optimizeLegibility;
 }
@@ -138,6 +137,9 @@ h3 {
   margin-top: 1.5rem;
 }
 
+h2, h3, h4 {
+  padding-top: 0.5rem;
+}
 
 /* Body text */
 p {
@@ -246,6 +248,7 @@ tbody tr:nth-child(odd) th {
   font-size: 1.8rem;
   line-height: .777em;
   margin: 2em 0 0;
+  padding-top: 0;
   text-align: center;
 }
 
@@ -269,6 +272,14 @@ tbody tr:nth-child(odd) th {
 @media (min-width: 48em) {
   .masthead-title small {
     display: inline;
+  }
+}
+
+.site-title-text {
+  text-decoration: none !important;
+  color: #4197b9 !important;
+  @media (min-width: 48em) {
+    letter-spacing: 0.05ch;
   }
 }
 
@@ -572,7 +583,7 @@ div.narrative,
 
 ol.toc-listing {
   list-style: none;
-  line-height: 1.55rem;
+  line-height: 1.65rem;
   padding-left: 1.55rem;
   padding-right: 2rem;
   @media(max-width:38em) {
@@ -686,12 +697,13 @@ ul.poetry {
   padding-left: 10rem;
 }
 
-.poem .byline,
-.poetry .byline {
+.byline {
   font-style: italic;
   font-weight: normal;
   letter-spacing: 0;
   margin-top: -.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.2em;
 }
 
 /* Footnotes styles */

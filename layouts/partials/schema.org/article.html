@@ -11,7 +11,9 @@
 
 {{- $publisher := site.Params.seo.publisher | default site.Title -}}
 {{- $logo := resources.Get (site.Params.assets.logo | default "/img/open-graph-logo.png") -}}
-{{- $logo = $logo.Resize "96x96" }}
+{{- $logo = $logo.Resize "96x96" -}}
+
+{{- $trans := .Params.translator }}
 
 <script type="application/ld+json" id="schema-data">
     {
@@ -22,7 +24,7 @@
             "@id": {{ .Permalink }}
         },
         "url": {{ .Permalink }},
-        "headline": {{ partial "title.html" . | htmlUnescape }},
+        "headline": {{ .Title | htmlUnescape }},
         "description": {{ partial "description.html" . }},{{ if .Params.featuredImage }}
         {{ $image := .Resources.GetMatch .Params.featuredImage -}}
         "image": {
@@ -37,27 +39,30 @@
         {{- if .Params.author }}
             {{- $authorType := (printf "%T" .Params.author) -}}
             {{- if eq $authorType "string" }}
-            "author": {
-                "@type": "Person",
-                "name": {{ .Params.author }}
-            },
+        "author": {
+            "@type": "Person",
+            "name": {{ htmlUnescape .Params.author }}
+        }
             {{- else if eq $authorType "[]string" }}
-            "author": [
-                {{ range $i, $author := .Params.author }}{{ if $i }},{{ end }}
-                {
-                    "@type": "Person",
-                    "name": {{ $author }}
-                }{{ end }}
-            ],
+        "author": [
+            {{ range $i, $author := .Params.author }}{{ if $i }},{{ end }}
+            {
+                "@type": "Person",
+                "name": {{ htmlUnescape $author }}
+            }{{ end }}
+        ],
             {{- end }}
         {{- else }}
             {{- with site.Author.name }}
-            "author": {
-                "@type": "Person",
-                "name": {{ . }}{{ with site.Author.twitter }},
-                "url": "https://twitter.com/{{ . }}"{{ end }}
-            },
+        "author": {
+            "@type": "Person",
+            "name": {{ . }}{{ with site.Author.twitter }},
+            "url": "https://twitter.com/{{ . }}"{{ end }}
+        },
             {{- end }}
+        {{- end }}
+        {{- if $trans }}
+        "translator": {{ htmlUnescape $trans }}
         {{- end }}
         "publisher": {
             "@type": "Organization",

@@ -5,14 +5,14 @@
         <h1 class="text-title">
             {{ .Params.pageTitle | default .Title }}
         </h1>
-        <p class="byline">
+        <div class="byline">
             {{- if in (slice "drama" "narrative" "poem") $postType -}}
                 {{- partial "post-meta/author.html" . -}}
                 {{- partial "post-meta/translator.html" . -}}
             {{- else -}}
                 {{- partial "post-meta/author.html" . -}}
             {{- end -}}
-        </p>
+        </div>
     </header>
 
     <div class="{{ $postType }}-body">
