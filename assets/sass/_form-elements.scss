@@ -190,17 +190,3 @@ form input:-moz-ui-invalid {
 .search-help-details[open] {
   background-color: rgba(255, 255, 200, 0.85);
 }
-
-.details-content {
-  max-height: 35vh;
-  overflow-y: scroll;
-}
-
-.search-help-details[open] .search-help-details-summary::after {
-  content: " (click to close)";
-}
-
-.search-help-details-summary::after {
-  content: " (click to open)";
-}
-
