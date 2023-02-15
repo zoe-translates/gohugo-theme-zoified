@@ -356,10 +356,10 @@ a.sidebar-nav-item-toc {
 }
 
 .sidebar-nav-item.active,
-a.sidebar-nav-item:hover,
-a.sidebar-nav-item:focus {
+.sidebar-nav-item:hover,
+.sidebar-nav-item:focus {
   text-decoration: none;
-  background-color: rgba(255,255,255,.1);
+  background-color: rgba(255,255,255,.135);
   border-color: transparent;
 }
 
@@ -371,9 +371,14 @@ a.sidebar-nav-item:focus {
   text-decoration: none;
 }
 
+.sidebar-nav-item:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 0.1em;
+}
+
 ol.sidebar-nav-item {
-    margin-bottom: 0;
-    list-style: none;
+  margin-bottom: 0;
+  list-style: none;
 }
 
 .sidebar-feed-list li {
@@ -383,6 +388,14 @@ ol.sidebar-nav-item {
   }
   &:last-child::after {
     content: "";
+  }
+}
+
+ol.sidebar-nav-item:hover{
+  text-decoration: none;
+  & a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 0.1em;
   }
 }
 
