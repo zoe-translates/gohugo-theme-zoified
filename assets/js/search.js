@@ -62,6 +62,7 @@ const ITEM_PROTO = document.getElementById('search-display-tpl')
                            .content.querySelector("article");
 const MARK_PROTO = document.createElement("mark");
 MARK_PROTO.className = "search-hit";
+const SR_REGION = document.getElementById('search-output-region');
 const SF_CONTAINER = document.getElementById('search-input-container');
 const SERR_CONTAINER = document.getElementById('search-error-container');
 const SERR_CONTENT = document.getElementById('search-error-content');
@@ -69,22 +70,29 @@ const SRES_CONTAINER = document.getElementById('search-results');
 const SRES_COUNT = document.getElementById('results-count');
 const SRES_B = document.getElementById('search-results-body');
 const SINPUT = document.getElementById('search');
+const SBUTT = document.getElementById('search-act');
 
 let _handledquery;  // Previously handled query input to handleSearchQuery()
 let _lastbad = false;
 
 function handleSearchQuery(query) {
+  SR_REGION.ariaBusy = "true";
+  SR_REGION.setAttribute("aria-busy", "true");
   const results = searchSite(query);
   _handledquery = query;
   if (!results.length) {
     _lastbad = true;
     showErrorMessage(i18n.noResults);
     hideSearchResults();
+    SR_REGION.ariaBusy = "false";
+    SR_REGION.setAttribute("aria-busy", "false");
     return;
   }
   _lastbad = false;
   hideErrorMessage();
   renderSearchResults(query, results);
+  SR_REGION.ariaBusy = "false";
+  SR_REGION.setAttribute("aria-busy", "false");
 }
 
 function searchSite(query) {
@@ -379,14 +387,6 @@ function processContentHighlight(text, raw_marks, c_rad = 45) {
   return acc;
 }
 
-function getQueryParam(key) {
-  const params = new Proxy(new URLSearchParams(window.location.search), {
-    get: (searchParams, prop) => searchParams.get(prop)
-  });
-
-  return params[key];
-}
-
 function preNormalizeInput(str) {
   return _dediac(str).split(/\s/)
                      .filter((e) => !!e)
@@ -394,25 +394,28 @@ function preNormalizeInput(str) {
                      .toLowerCase();  // Normalize case
 }
 
-const SCHECKBOX = document.getElementById('sidebar-checkbox');
-
-function inputSoftFocus(e) {
-  SCHECKBOX.checked = 0;
-}
+// Emulate the URL change of search action.
+const urlEmulate = new Proxy(new URLSearchParams(location.search), {
+  get: (searchParams, prop) => searchParams.get(prop),
+  set: (searchParams, prop, value) => {
+    searchParams.set(prop, value);
+    window.history.replaceState({}, '', `${location.pathname}?${searchParams}`)
+  },
+  deleteProperty: (searchParams, prop) => {
+    searchParams.delete(prop);
+    window.history.replaceState({}, '', `${location.pathname}`)
+  }
+});
 
 function inputEventHandler(e) {
-  // If still composing, consume event and do nothing.
-  if (e.isComposing) {
-    return;
-  }
-
+  e.preventDefault();
   // If input empty, output should be empty (made hidden) too.
   if (!SINPUT.value) {
     hideErrorMessage();
     hideSearchResults();
+    delete urlEmulate.q;
     return;
   }
-
   // Pre-normalize input to intercept trivial modifications such as
   // adding/removing space characters.
   const query = preNormalizeInput(SINPUT.value);
@@ -436,27 +439,26 @@ function inputEventHandler(e) {
 
   // Actual, long code-path doing a real search.
   handleSearchQuery(query);
+  urlEmulate.q = SINPUT.value;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const searchForm = document.getElementById('search-form');
 
-  if (searchForm === null || SINPUT === null) {
+  if (searchForm === null || SINPUT === null || SBUTT === null) {
     return;
   }
 
-  searchForm.addEventListener('submit', (e) => e.preventDefault());
+  searchForm.addEventListener('submit', inputEventHandler);
 
-  if (SCHECKBOX !== null) {
-    SINPUT.addEventListener('click', inputSoftFocus);
-  }
+  //SINPUT.addEventListener('keydown', enterKeyHandler);
 
-  SINPUT.addEventListener('input', inputEventHandler);
+  SBUTT.addEventListener('click', inputEventHandler);
 });
 
 // Handle search input passed from URL query part.
 document.addEventListener('indexed', () => {
-  const query = getQueryParam('q');
+  const query = urlEmulate.q;
 
   if (query) {
     const pnQuery = preNormalizeInput(query);

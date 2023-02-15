@@ -1,16 +1,32 @@
-<div id="site-search" class="search-form">
-  <label for="search" aria-details="search-help-details-content">{{ i18n "search_help" }}</label>
+<noscript>
+  <h2>The search feature requires JavaScript</h2>
+  <p>
+  This website is a static website, and search data never leaves your browser.
+  </p>
+  <p>
+  For this to work, JavaScript is necessary. Without it, the search form below
+  is not functional.
+  </p>
+  <p>
+  You can try a site-specific external search, for example, by
+  <a class="external" rel="noopener noreferrer nofollow"
+  href="https://duckduckgo.com/?q=site%3Azoe-translat.es">DuckDuckGo</a>.
+  </p>
+</noscript>
+<div id="site-search" class="search-form">{{ if not hugo.IsProduction }}{{ "<!-- [html-validate-disable-next wcag/h23: no actual query HTTP action] -->" | safeHTML }}{{ end }}
   <form role="search" id="search-form">
     <div class="search-container form-item" id="search-input-container">
-      <input
-          autofocus
-          autocomplete="off"
-          spellcheck="false"
+      <input autofocus autocomplete="off" spellcheck="false"
           class="search-form-input form-input"
           type="search"
           id="search"
           name="q"
+          aria-labelledby="main-content-heading"
+          aria-errormessage="search-error-content"
+          aria-details="search-help-details-content"
+          aria-controls="search-result-region"
           maxlength="128">
+      <button id="search-act" type="button">Enter</button>
     </div>
   </form>
   <details class="search-help-details">
@@ -31,8 +47,11 @@
   </details>
 </div>
 <hr class="search-fold">
-<output for="search" form="search-form"
-  aria-relevant="additions" aria-live="off">
+<section id="search-output-region"
+  aria-live="polite"
+  aria-relevant="additions"
+  aria-label="Search output"
+  aria-busy="false">
   <div class="search-error hide-element" id="search-error-container">
     <span class="search-error-message" id="search-error-content"></span>
   </div>
@@ -42,11 +61,11 @@
     </div>
     <div id="search-results-body" class="post-list"></div>
   </div>
-</output>
+</section>
 <template id="search-display-tpl">
 <article class="post search-result-item" data-score="">
-  <header>
-    <h2 class="post-title">
+  <header>{{ if not hugo.IsProduction }}{{ "<!-- [html-validate-disable-next empty-heading: template target] -->" | safeHTML }}{{ end }}
+    <h2 class="post-title">{{ if not hugo.IsProduction }}{{ "<!-- [html-validate-disable-next wcag/h30: template target] -->" | safeHTML }}{{ end }}
       <a href="#" class="search-result-page-title"></a>
     </h2>
     <div class="post-meta">

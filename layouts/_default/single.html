@@ -2,7 +2,7 @@
 {{- $postType := .Type | lower | singularize -}}
 <article class="{{ partial "post-class.html" . }}" role="document"{{ with .Params.lang }} lang="{{ . }}"{{ end }}>
     <header>
-        <h1 class="text-title">
+        <h1 class="text-title" id="main-content-heading">
             {{ .Params.pageTitle | default .Title }}
         </h1>
         <div class="byline">

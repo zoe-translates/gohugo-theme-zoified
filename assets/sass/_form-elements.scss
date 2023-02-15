@@ -164,6 +164,22 @@ form input:-moz-ui-invalid {
   display: none;
 }
 
+.search-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  // Make a horizontal gutter on small screen between interactive elements.
+  @media(max-width:56em) {
+    margin-bottom: 1.5rem;
+  }
+}
+
+#search-act {
+  font-size: 100%;
+  max-width: 8rem;
+  width: 20%;
+}
+
 .search-hit {
   background-color: rgb(255, 255, 84);
 }
@@ -183,7 +199,7 @@ form input:-moz-ui-invalid {
 }
 
 .search-help-details {
-  font-size: 85%;
+  font-size: 90%;
   @include transition(background-color 0.5s ease-in);
 }
 
