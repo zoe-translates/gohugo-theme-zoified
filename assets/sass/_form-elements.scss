@@ -4,7 +4,7 @@
 
 .form-input {
   border: 1px solid #ccc;
-  border-radius: .2em;
+  border-radius: 3px;
   font-family: inherit;
   font-size: 1.25em;
   color: #000;
@@ -167,6 +167,7 @@ form input:-moz-ui-invalid {
 .search-container {
   display: flex;
   flex-direction: row;
+  align-items: stretch;
   justify-content: flex-end;
   // Make a horizontal gutter on small screen between interactive elements.
   @media(max-width:56em) {
@@ -175,9 +176,13 @@ form input:-moz-ui-invalid {
 }
 
 #search-act {
+  border: 1px solid #2c6982cc;
+  border-radius: 3px;
+  background: #4197b950;
+  color: #000;
   font-size: 100%;
-  max-width: 8rem;
-  width: 20%;
+  min-width: 6ch;
+  text-align: center;
   &:hover, &:focus {
     cursor: pointer;
     text-decoration: underline;
