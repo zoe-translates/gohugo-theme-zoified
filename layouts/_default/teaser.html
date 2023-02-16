@@ -12,7 +12,7 @@
   </p>
   {{- if site.Params.readmore }}
     {{- if .Truncated }}
-  <footer>
+  <footer class="listing-footer">
     <a href="{{ .RelPermalink }}" class="read-more">{{ i18n "more" }}<span class="sr-only-inline">‘{{ .Title }}’.</span></a>
   </footer>
     {{- end }}
