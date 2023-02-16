@@ -1,15 +1,13 @@
 {{- if gt .Paginator.TotalPages 1 }}
-    <div class="divider"></div>
-
     <nav aria-label="pagination" class="pagination d-flex">
-        <ul class="pager d-flex">
+        <ol class="pager d-flex">
             {{- $.Scratch.Set "hasPrevDots" false -}}
             {{- $.Scratch.Set "hasNextDots" false -}}
 
             {{- range .Paginator.Pagers -}}
                 {{- $currentItem := . -}}
                 {{- if eq $currentItem $.Paginator }}
-            <li class="pager-item pager-item-current">
+            <li class="pager-item pager-item-current" aria-current="page">
             {{- .PageNumber -}}
             </li>
                 {{- else if or (or (eq . $.Paginator.First) (eq . $.Paginator.Prev)) (or  (eq . $.Paginator.Next) (eq . $.Paginator.Last )) }}
@@ -28,6 +26,6 @@
                     {{- end }}
                 {{- end }}
             {{- end }}
-        </ul>
+        </ol>
     </nav>
 {{ end }}
