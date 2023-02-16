@@ -359,8 +359,11 @@ a.sidebar-nav-item-toc {
 .sidebar-nav-item:hover,
 .sidebar-nav-item:focus {
   text-decoration: none;
+  text-decoration: underline;
+  text-decoration-thickness: 0.1em;
   background-color: rgba(255,255,255,.135);
   border-color: transparent;
+  border-right: 5px solid #fff;
 }
 
 .sidebar-nav-item {
@@ -371,14 +374,13 @@ a.sidebar-nav-item-toc {
   text-decoration: none;
 }
 
-.sidebar-nav-item:hover {
-  text-decoration: underline;
-  text-decoration-thickness: 0.1em;
-}
-
 ol.sidebar-nav-item {
   margin-bottom: 0;
   list-style: none;
+  & a:focus {
+    text-decoration: underline;
+    text-decoration-thickness: 0.1em;
+  }
 }
 
 .sidebar-feed-list li {

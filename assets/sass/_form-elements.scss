@@ -178,11 +178,13 @@ form input:-moz-ui-invalid {
 #search-act {
   border: 1px solid #2c6982cc;
   border-radius: 3px;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+  min-width: 6.5ch;
+  font-size: 100%;
   background: #4197b950;
   color: #000;
-  font-size: 100%;
-  min-width: 6ch;
-  text-align: center;
   &:hover, &:focus {
     cursor: pointer;
     text-decoration: underline;
