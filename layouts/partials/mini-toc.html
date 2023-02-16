@@ -10,7 +10,7 @@
 {{- $sectionCount := len $section -}}
 {{ if ge $sectionCount 1 }}
   {{ $maxPosts := site.Params.recentPostsSize | default 5 -}}
-    <div class="toc" role="navigation">
+    <nav class="toc" aria-labelledby="toc-heading">
       <h2 id="toc-heading">{{ i18n "latest_publications" }}</h2>
       <ol class="toc-listing">
         {{/* Range through the first $maxPosts items of the $section */ -}}
@@ -18,5 +18,5 @@
         {{ partial "post-toc-summary" . }}
         {{- end }}
       </ol>
-    </div>
+    </nav>
 {{ end }}
