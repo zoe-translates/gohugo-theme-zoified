@@ -358,12 +358,13 @@ a.sidebar-nav-item-toc {
 .sidebar-nav-item.active,
 .sidebar-nav-item:hover,
 .sidebar-nav-item:focus {
-  text-decoration: none;
   text-decoration: underline;
+  text-decoration-style: solid;
   text-decoration-thickness: 0.1em;
   background-color: rgba(255,255,255,.135);
   border-color: transparent;
-  border-right: 5px solid #fff;
+  // Enhance the visual cue of focused element
+  border-right: 0.5em solid #fff;
 }
 
 .sidebar-nav-item {
@@ -379,6 +380,7 @@ ul.sidebar-nav-item {
   list-style: none;
   & a:focus {
     text-decoration: underline;
+    text-decoration-style: solid;
     text-decoration-thickness: 0.1em;
   }
 }
@@ -397,6 +399,7 @@ ul.sidebar-nav-item:hover{
   text-decoration: none;
   & a:hover {
     text-decoration: underline;
+    text-decoration-style: solid;
     text-decoration-thickness: 0.1em;
   }
 }
@@ -719,6 +722,11 @@ ul.poetry {
   margin-top: -.5rem;
   margin-bottom: 1rem;
   line-height: 1.2em;
+}
+
+/* Expose text to assistive tech but not sighted reader */
+.sr-only-inline {
+  @include visually-hidden();
 }
 
 /* Footnotes styles */
