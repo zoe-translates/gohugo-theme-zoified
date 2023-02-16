@@ -6,7 +6,7 @@
     <div class="sidebar-item">
         <p>{{ site.Params.Description }}</p>
     </div>
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" aria-label="Site navigation">
         {{- $current := . -}}
         {{- range site.Menus.main -}}
             {{- $active := or ($current.IsMenuCurrent "main" .) ($current.HasMenuCurrent "main" .) -}}
@@ -28,13 +28,13 @@
         {{- end }}
 
         {{- with site.Menus.feeds }}
-        <ol class="sidebar-nav-item sidebar-feed-list">
+        <ul class="sidebar-nav-item sidebar-feed-list">
                 {{- range site.Menus.feeds -}}
             <li><a href="{{ .URL }}" id="menu-feeds-{{ .Identifier }}" class="menu-feeds-item" data-feed-type="{{ .Identifier }}" type="{{ .Params.mime }}">
                         {{-  print .Name | safeHTML -}}
             </a></li>
                 {{- end -}}
-        </ol>
+        </ul>
         {{- end }}
     </nav>
     {{- partial "footer" . }}

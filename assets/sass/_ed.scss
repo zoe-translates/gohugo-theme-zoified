@@ -374,7 +374,7 @@ a.sidebar-nav-item-toc {
   text-decoration: none;
 }
 
-ol.sidebar-nav-item {
+ul.sidebar-nav-item {
   margin-bottom: 0;
   list-style: none;
   & a:focus {
@@ -393,7 +393,7 @@ ol.sidebar-nav-item {
   }
 }
 
-ol.sidebar-nav-item:hover{
+ul.sidebar-nav-item:hover{
   text-decoration: none;
   & a:hover {
     text-decoration: underline;
