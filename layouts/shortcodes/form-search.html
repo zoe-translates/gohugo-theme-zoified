@@ -13,7 +13,7 @@
   href="https://duckduckgo.com/?q=site%3Azoe-translat.es">DuckDuckGo</a>.
   </p>
 </noscript>
-<div id="site-search" class="search-form">{{ if not hugo.IsProduction }}{{ "<!-- [html-validate-disable-next wcag/h23: no actual query HTTP action] -->" | safeHTML }}{{ end }}
+<div id="site-search" class="search-form">
   <form role="search" id="search-form">
     <div class="search-container form-item" id="search-input-container">
       <input autofocus autocomplete="off" spellcheck="false"
@@ -27,7 +27,7 @@
           aria-details="search-help-details-content"
           aria-controls="search-result-region"
           maxlength="128">
-      <button id="search-act" type="button">Enter</button>
+      <button id="search-act" formmethod="get" type="submit">Enter</button>
     </div>
   </form>
   <details class="search-help-details">

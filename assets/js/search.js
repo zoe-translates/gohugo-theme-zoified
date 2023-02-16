@@ -70,7 +70,6 @@ const SRES_CONTAINER = document.getElementById('search-results');
 const SRES_COUNT = document.getElementById('results-count');
 const SRES_B = document.getElementById('search-results-body');
 const SINPUT = document.getElementById('search');
-const SBUTT = document.getElementById('search-act');
 
 let _handledquery;  // Previously handled query input to handleSearchQuery()
 let _lastbad = false;
@@ -445,15 +444,12 @@ function inputEventHandler(e) {
 document.addEventListener('DOMContentLoaded', () => {
   const searchForm = document.getElementById('search-form');
 
-  if (searchForm === null || SINPUT === null || SBUTT === null) {
+  if (searchForm === null || SINPUT === null) {
     return;
   }
 
+  // Intercept form submission.
   searchForm.addEventListener('submit', inputEventHandler);
-
-  //SINPUT.addEventListener('keydown', enterKeyHandler);
-
-  SBUTT.addEventListener('click', inputEventHandler);
 });
 
 // Handle search input passed from URL query part.
