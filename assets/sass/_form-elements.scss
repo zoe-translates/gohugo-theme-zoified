@@ -118,48 +118,6 @@ form input:-moz-ui-invalid {
   }
 }
 
-.button {
-  display: inline-block;
-  padding: 9px 10px 10px;
-  font-size: 13px;
-  line-height: 1;
-  border: 2px solid #5e5e5e;
-  border-radius: 3px;
-  background: #5e5e5e;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-
-  @include mq(tabletp) {
-    padding: 11px 20px 12px;
-    font-size: 15px;
-  }
-
-  &:hover {
-    background: adjust-hue(#404040,15%);
-    border-color: adjust-hue(#404040,15%);
-    color: #fff;
-  }
-
-  svg {
-    margin-right: 5px;
-
-    &:last-child {
-      margin-right: 0;
-      margin-left: 5px;
-    }
-
-    @include mq(tabletp) {
-      margin-right: 8px;
-
-      &:last-child {
-        margin-right: 0;
-        margin-left: 8px;
-      }
-    }
-  }
-}
-
 .hide-element {
   display: none;
 }
@@ -176,7 +134,7 @@ form input:-moz-ui-invalid {
 }
 
 #search-act {
-  border: 1px solid #2c6982cc;
+  border: 1px solid #2c6982;
   border-radius: 3px;
   padding-left: 0;
   padding-right: 0;
@@ -187,8 +145,8 @@ form input:-moz-ui-invalid {
   color: #fff;
   &:hover, &:focus {
     cursor: pointer;
-    text-decoration: underline;
-    text-decoration-thickness: 0.1em;
+    @include interactive-text-deco(true);
+    background: scale-color(#2c6982, $lightness: 10%);
   }
 }
 
