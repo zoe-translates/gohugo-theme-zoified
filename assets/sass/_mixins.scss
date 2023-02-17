@@ -251,3 +251,14 @@ $break-desktop: 1600px;
   clip: rect(1px, 1px, 1px, 1px);
   @include clip-path(inset(50%));
 }
+
+@mixin interactive-text-deco($isactive) {
+  text-decoration: underline;
+  text-decoration-thickness: 0.1em;
+  @if $isactive {
+    text-decoration-style: solid;
+  }
+  @else {
+    text-decoration-style: dotted;
+  }
+}

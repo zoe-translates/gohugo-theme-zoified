@@ -59,9 +59,7 @@ body {
 
 /* Link decoration for visual cues */
 a {
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-decoration-thickness: 0.1em;
+  @include interactive-text-deco(false);
 }
 
 /*
@@ -342,46 +340,45 @@ tbody tr:nth-child(odd) th {
 
 /* Sidebar nav */
 .sidebar-nav {
-  border-bottom: 1px solid rgba(255,255,255,.1);
+  border-bottom: 1px solid rgba(255,255,255,.135);
 }
 
 .sidebar-nav-item {
   display: block;
   padding: .5rem 1rem;
-  border-top: 1px solid rgba(255,255,255,.1);
+  border-top: 1px solid rgba(255,255,255,.135);
 }
 
 a.sidebar-nav-item-toc {
   color: rgba(255,255,255,.8);
 }
 
-.sidebar-nav-item.active,
-.sidebar-nav-item:hover,
-.sidebar-nav-item:focus {
-  text-decoration: underline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 0.1em;
-  background-color: rgba(255,255,255,.135);
-  border-color: transparent;
-  // Enhance the visual cue of focused element
-  border-right: 0.5em solid #fff;
-}
-
 .sidebar-nav-item {
   text-decoration: none;
 }
 
-.sidebar-nav-item a {
-  text-decoration: none;
+.sidebar-nav-item.active,
+.sidebar-nav-item:hover,
+.sidebar-nav-item:focus {
+  @include interactive-text-deco(true);
+  background-color: rgba(255,255,255,.135);
+  border-color: transparent;
+  // Enhance the visual cue of focused element
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    top: -1px; right: 0;
+    height: calc(100% + 2px);
+    border-left: 0.5rem solid #fff;
+  }
 }
 
 ul.sidebar-nav-item {
   margin-bottom: 0;
   list-style: none;
   & a:focus {
-    text-decoration: underline;
-    text-decoration-style: solid;
-    text-decoration-thickness: 0.1em;
+    @include interactive-text-deco(true);
   }
 }
 
@@ -393,14 +390,15 @@ ul.sidebar-nav-item {
   &:last-child::after {
     content: "";
   }
+  a {
+    text-decoration: none;
+  }
 }
 
 ul.sidebar-nav-item:hover{
   text-decoration: none;
   & a:hover {
-    text-decoration: underline;
-    text-decoration-style: solid;
-    text-decoration-thickness: 0.1em;
+    @include interactive-text-deco(true);
   }
 }
 
