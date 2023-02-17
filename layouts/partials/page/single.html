@@ -1,5 +1,5 @@
 {{ define "main" }}
-<article class="{{ partial "post-class.html" . }}" role="document" id="page-{{ .File.TranslationBaseName | lower }}"{{ with .Params.lang}} lang="{{ . }}"{{ end }}>
+<article class="{{ partial "post-class.html" . }}" id="page-{{ .File.TranslationBaseName | lower }}"{{ with .Params.lang}} lang="{{ . }}"{{ end }}>
     <header>
         <h1 class="page-title">
             {{ .Params.pageTitle | default .Title }}
