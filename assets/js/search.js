@@ -211,10 +211,11 @@ function updateSearchResults(query, results) {
       ts = processContentHighlight(hit.content, minfo.content);
     } else {
       // The search-hit is not in content, create an excerpt anyway.
-      ts = [hit.content.slice(0, 100)];  // NOTE: hard-coded.
-      // NOTE: This excerpt should be right-adjusted too.
-      if (hit.content.length > 100) {
-        ts.push(" …");
+      const l = 100;  // NOTE: hard-coded.
+      const newl = _adjustForBound(hit.content, l, 0, -1);
+      ts = [hit.content.slice(0, newl)];
+      if (hit.content.length > newl) {
+        ts.push(newEllip(false, true, false));
       }
     }
     content_p.append(...ts);
@@ -293,6 +294,29 @@ function newHighlight(text) {
   return mark;
 }
 
+const SPAN_PROTO = document.createElement("span");
+SPAN_PROTO.className = "ell";
+function newEllip(left = true, mid = true, right = true) {
+  const span = SPAN_PROTO.cloneNode(false);
+
+  let txt = "";
+
+  if (left) {
+    txt += "]";
+  }
+
+  if (mid) {
+    txt += " … ";
+  }
+
+  if (right) {
+    txt += "[";
+  }
+
+  span.textContent = txt;
+  return span;
+}
+
 // Mark the text str using <mark class="search-item">...</mark> at given
 // offsets. The array `marks` is an array of two-member arrays [low, high]
 // bracketing the marked part. Optionally, each bracket can be interpreted as if
@@ -319,16 +343,19 @@ function addMarkedTextInto(arr, str, marks, base = 0) {
 // where in each object, the "mark"s belong to the "context" blocked delimited
 // by c_low and c_high. The context blocks are kept within the bounds of the
 // text itself.
-function createMarkContext(tlen, raw_marks, c_rad) {
+function createMarkContext(text, raw_marks, c_rad) {
   if (!raw_marks.length) {
     return [];
   }
+
+  const tlen = text.length;
 
   // Initial object
   let [cur_low, cur_high] = raw_marks[0];
   const res = [{"context": trimContext(cur_low - c_rad, cur_high + c_rad, tlen),
                 "mark": [[cur_low, cur_high]]}];
   let cur_obj = res[0];
+  _cutAtWord(cur_obj, text);
   let tc_low, tc_high;
   // For the rest of the input raw_marks array
   for (const [low, high] of raw_marks.slice(1)) {
@@ -340,49 +367,91 @@ function createMarkContext(tlen, raw_marks, c_rad) {
       cur_obj.mark.push([low, high]);
     } else {
       // Should open new context with the mark.
-      // But check broken-word at context boundary first (not implemented).
-      // Open next context.
       cur_obj = {};
       cur_obj.context = [tc_low, tc_high];
       cur_obj.mark = [[low, high]];
       res.push(cur_obj);
     }
   }
+  res.forEach((cobj) => {
+    _cutAtWord(cobj, text);
+  });
   return res;
+}
+
+const RE_LETT = new RegExp("[\\p{L}\\p{gc=Mark}\\p{gc=Connector_Punctuation}\\p{Join_Control}]", "u");
+function _adjustForBound(text, index, bound, step = 1) {
+  if ((index === 0 && step > 0) || (index === text.length && step < 0)
+       || RE_HAN.test(text[index])) {
+    return index;
+  }
+
+  if (step > 0) {
+    if (RE_LETT.test(text[index]) && !RE_LETT.test(text[index - 1])) {
+      return index;
+    }
+  } else if (step < 0) {
+    if (RE_LETT.test(text[index - 1]) && !RE_LETT.test(text[index])) {
+      return index;
+    }
+  }
+
+  let i;
+  let first_chunk = true;
+  let second_chunk = false;
+  for (i = index; step * (i - bound) < 0; i += step) {
+    if (first_chunk) {
+      if (RE_LETT.test(text[i])) {
+        continue;
+      }
+      first_chunk = false;
+      second_chunk = true;
+    }
+
+    if (second_chunk) {
+      if (!RE_LETT.test(text[i])) {
+        continue;
+      }
+      break;
+    }
+  }
+  return i + (step < 0);
+}
+
+function _cutAtWord(cobj, text) {
+  let n = cobj.context[0];
+  cobj.context[0] = _adjustForBound(text, n, cobj.mark[0][0]);
+  n = cobj.context[1];
+  cobj.context[1] = _adjustForBound(text, n, cobj.mark.at(-1)[1], -1);
 }
 
 function trimContext(low, high, ub) {
   return [Math.max(0, low), Math.min(high, ub)]
 }
 
-// For the given text string, and an array of raw marks [low, high], each
-// bracketing the highlight, generate an excerpt. In each sub-unit (context
-// block) of the excerpt, there are roughly c_rad characters at the beginning
-// and end each, surrounding any highlighted text. The sub-units are joined by
-// the ellipsis, unless it hits either end of the full text.
 function processContentHighlight(text, raw_marks, c_rad = 45) {
   const acc = [];
   // Array of contexts-with-marks.
-  const carr = createMarkContext(text.length, raw_marks, c_rad);
-  if (carr[0].context[0] > 0) {
-    acc.push("… ");
-  }
+  const carr = createMarkContext(text, raw_marks, c_rad);
+  acc.push(newEllip(false, carr[0].context[0] > 0));
 
   const last = carr.length - 1;
   for (let i = 0; i <= last; i++) {
     const cinfo = carr[i];
     const base = cinfo.context[0];
     let tb = text.slice(...cinfo.context);
-    if (i != last) {
-      tb += " … ";
-    }
 
     addMarkedTextInto(acc, tb, cinfo.mark, base);
+
+    if (i != last) {
+      acc.push(newEllip());
+    }
+
   }
 
-  if (carr[carr.length - 1].context[1] < text.length) {
-    acc.push(" …");
-  }
+  acc.push(newEllip(true,
+                    carr[carr.length - 1].context[1] < text.length,
+                    false));
   return acc;
 }
 
