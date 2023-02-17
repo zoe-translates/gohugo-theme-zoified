@@ -262,3 +262,10 @@ $break-desktop: 1600px;
     text-decoration-style: dotted;
   }
 }
+
+@mixin hyphenate-text($value) {
+  -webkit-hyphens: $value;
+     -moz-hyphens: $value;
+      -ms-hyphens: $value;
+          hyphens: $value;
+}

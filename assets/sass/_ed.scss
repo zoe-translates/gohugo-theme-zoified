@@ -722,15 +722,49 @@ ul.poetry {
 .byline {
   font-style: italic;
   font-size: 95%;
-  letter-spacing: 0;
   margin-top: -.5rem;
   margin-bottom: 1rem;
-  line-height: 1.2em;
+  line-height: 1.2;
 }
 
 /* Expose text to assistive tech but not sighted reader */
 .sr-only-inline {
   @include visually-hidden();
+}
+
+.additional-text {
+  font-size: 90%;
+}
+
+/* Justify paragraphs in post (not verse) */
+article.post > div.post-body p, article.page > div.page-body p {
+  text-indent: 2em;
+}
+
+/* Use text justification only on wide spaces, to reduce the river effect */
+@media(min-width:900px) {
+  article.post > div.post-body p, article.page > div.page-body p,
+  .justified-text, .additional-text {
+    @include hyphenate-text(auto);
+    text-align: justify;
+  }
+}
+
+.noindent {
+  text-indent: 0 !important;
+}
+
+.quoted-poetry, .poetry {
+  @include hyphenate-text(unset !important);
+  text-align: start !important;
+}
+
+.quoted-poetry {
+  padding-left: 2em;
+}
+
+.brief-note {
+  font-style: italic;
 }
 
 /* Footnotes styles */
