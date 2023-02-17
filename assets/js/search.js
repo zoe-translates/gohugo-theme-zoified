@@ -6,7 +6,7 @@ async function initSearchIndex() {
   try {
     const response = await fetch(searchConfig.indexURI);
 
-    if (response.status !== 200) return;
+    if (!response.ok) return;
 
     pagesIndex = await response.json();
 
