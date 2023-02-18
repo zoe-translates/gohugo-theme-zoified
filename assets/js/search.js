@@ -213,9 +213,9 @@ function updateSearchResults(query, results) {
       // The search-hit is not in content, create an excerpt anyway.
       const l = 100;  // NOTE: hard-coded.
       const newl = _adjustForBound(hit.content, l, 0, -1);
-      ts = [hit.content.slice(0, newl)];
+      ts = [newEllip("["), hit.content.slice(0, newl)];
       if (hit.content.length > newl) {
-        ts.push(newEllip(false, true, false));
+        ts.push(newEllip("] …"));
       }
     }
     content_p.append(...ts);
@@ -296,23 +296,8 @@ function newHighlight(text) {
 
 const SPAN_PROTO = document.createElement("span");
 SPAN_PROTO.className = "ell";
-function newEllip(left = true, mid = true, right = true) {
+function newEllip(txt) {
   const span = SPAN_PROTO.cloneNode(false);
-
-  let txt = "";
-
-  if (left) {
-    txt += "]";
-  }
-
-  if (mid) {
-    txt += " … ";
-  }
-
-  if (right) {
-    txt += "[";
-  }
-
   span.textContent = txt;
   return span;
 }
@@ -433,7 +418,7 @@ function processContentHighlight(text, raw_marks, c_rad = 45) {
   const acc = [];
   // Array of contexts-with-marks.
   const carr = createMarkContext(text, raw_marks, c_rad);
-  acc.push(newEllip(false, carr[0].context[0] > 0));
+  acc.push(newEllip(carr[0].context[0] > 0 ? "… [" : "["));
 
   const last = carr.length - 1;
   for (let i = 0; i <= last; i++) {
@@ -444,14 +429,13 @@ function processContentHighlight(text, raw_marks, c_rad = 45) {
     addMarkedTextInto(acc, tb, cinfo.mark, base);
 
     if (i != last) {
-      acc.push(newEllip());
+      acc.push(newEllip(" … "));
     }
 
   }
 
-  acc.push(newEllip(true,
-                    carr[carr.length - 1].context[1] < text.length,
-                    false));
+  acc.push(newEllip(carr.at(-1).context[1] < text.length ?
+                    "] …" : "]"));
   return acc;
 }
 
