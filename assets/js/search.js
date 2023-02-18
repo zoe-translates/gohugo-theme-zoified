@@ -213,9 +213,9 @@ function updateSearchResults(query, results) {
       // The search-hit is not in content, create an excerpt anyway.
       const l = 100;  // NOTE: hard-coded.
       const newl = _adjustForBound(hit.content, l, 0, -1);
-      ts = [newEllip("["), hit.content.slice(0, newl)];
+      ts = [hit.content.slice(0, newl)];
       if (hit.content.length > newl) {
-        ts.push(newEllip("] …"));
+        ts.push(newEllip(" …"));
       }
     }
     content_p.append(...ts);
@@ -429,7 +429,7 @@ function processContentHighlight(text, raw_marks, c_rad = 45) {
     addMarkedTextInto(acc, tb, cinfo.mark, base);
 
     if (i != last) {
-      acc.push(newEllip(" … "));
+      acc.push(newEllip("] … ["));
     }
 
   }
