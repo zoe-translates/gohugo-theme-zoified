@@ -353,14 +353,12 @@ tbody tr:nth-child(odd) th {
   display: block;
   padding: .5rem 1rem;
   border-top: 1px solid rgba(255,255,255,.135);
+  text-decoration: none;
+  @include transition(background-color 0.3s ease-in-out);
 }
 
 a.sidebar-nav-item-toc {
   color: rgba(255,255,255,.8);
-}
-
-.sidebar-nav-item {
-  text-decoration: none;
 }
 
 .sidebar-nav-item.active,
