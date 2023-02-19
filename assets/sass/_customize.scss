@@ -191,7 +191,7 @@ ol.pager {
 
 a.external {
   &:after {
-    background-color: #ac4142;
+    background-color: $rubric-color;
     content: "";
     display: inline-flex;
     height: 0.5em;
