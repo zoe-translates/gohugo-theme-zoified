@@ -14,7 +14,7 @@
     "url": "git+https://github.com/zoe-translates/hugo-theme-zoified.git"
   },
   "license": "MIT",
-  "author": "Zoë C. <zoe@zoetranslat.es>",
+  "author": "Zoë C. <info@zoetranslat.es>",
   "main": "index.js",
   "scripts": {
     "server": "HUGO_RESOURCEDIR='../resources' HUGO_ENV=development hugo server --verbose --source=exampleSite --buildDrafts --buildFuture --ignoreCache --disableFastRender",

@@ -189,18 +189,22 @@ ol.pager {
   }
 }
 
-a.external {
-  &:after {
-    background-color: $rubric-color;
-    content: "";
-    display: inline-flex;
-    height: 0.5em;
-    width: 0.5em;
-    margin-left: 0.2ch;
+a.external::after, a.email::after {
+  background-color: $rubric-color;
+  content: "";
+  display: inline-flex;
+  height: 0.5em;
+  width: 0.5em;
+  margin-left: 0.2ch;
+  @include mask-size(cover);
+}
 
-    @include mask-size(cover);
-    @include mask-image(url("/img/external-link.svg"));
-  };
+a.external::after {
+  @include mask-image(url("/img/external-link.svg"));
+}
+
+a.email::after {
+  @include mask-image(url("/img/email-link.svg"));
 }
 
 ul.tags-cloud {
