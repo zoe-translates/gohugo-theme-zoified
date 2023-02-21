@@ -141,6 +141,14 @@ function getLunrSearchQuery(query) {
   return searchTerms.join(" ");
 }
 
+function enableForm() {
+  SINPUT.removeAttribute("readonly");
+  const b = document.getElementById("search-act");
+  if (b) {
+    b.removeAttribute("disabled");
+  }
+}
+
 function showErrorMessage(message) {
   SF_CONTAINER.classList.add('form-item-error');
   SERR_CONTENT.textContent = message;
@@ -519,3 +527,4 @@ document.addEventListener('indexed', () => {
 });
 
 initSearchIndex();
+enableForm();
