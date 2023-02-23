@@ -663,6 +663,11 @@ ol.toc-listing {
   white-space: nowrap;
 }
 
+.citeup {
+  font-size: 90%;
+  font-style: normal;
+}
+
 /*
   Poem styles
 
@@ -783,7 +788,7 @@ article.post > div.post-body p, article.page > div.page-body p {
 /* Footnotes styles */
 sub,
 sup {
-  font-size: 75%;
+  font-size: 85%;
   line-height: 0;
   position: relative;
   vertical-align: baseline;
@@ -796,7 +801,11 @@ sup {
 .footnotes {
   line-height: 1.2rem;
   font-size: 0.9rem;
-  letter-spacing: .01rem;
+  li p {
+    text-indent: 0 !important;
+    text-align: start !important;
+    @include hyphenate-text(unset !important);
+  }
 }
 
 .footnotes .foot-block {
@@ -807,8 +816,18 @@ sup {
 }
 
 a.footnote-ref {
-  padding-left: .1rem;
-  font-size: .66rem;
+  color: $rubric-color !important;
+  padding-left: .075rem;
+  &::before {
+    content: "[";
+  }
+  &::after {
+    content: "]";
+  }
+}
+
+.footnote-backref {
+  font-family: $heading-font;
 }
 
 /* Bibliography styles */
