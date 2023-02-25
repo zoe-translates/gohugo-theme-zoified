@@ -192,8 +192,14 @@ function _fill_with_text(node, str, marks) {
 
 const ARTICLE_COLLECTION = new DocumentFragment();
 function updateSearchResults(query, results) {
+  let len;
+  if (searchConfig.maxResults <= 0) {
+    len = results.length;
+  } else {
+    len = Math.min(results.length, searchConfig.maxResults);
+  }
 
-  for (let i = 0; i < Math.min(results.length, searchConfig.maxResults); i++) {
+  for (let i = 0; i < len ; i++) {
     const resinfo = results[i];
     const hit = pagesIndex[resinfo.ref];
     const minfo = parseForPositions(resinfo.matchData.metadata);
@@ -343,15 +349,18 @@ function createMarkContext(text, raw_marks, c_rad) {
 
   const tlen = text.length;
 
+  const end_idx = (searchConfig.maxHitsPerResult <= 0)?
+                  raw_marks.length:
+                  searchConfig.maxHitsPerResult;
+
   // Initial object
   let [cur_low, cur_high] = raw_marks[0];
   const res = [{"context": trimContext(cur_low - c_rad, cur_high + c_rad, tlen),
                 "mark": [[cur_low, cur_high]]}];
   let cur_obj = res[0];
-  _cutAtWord(cur_obj, text);
   let tc_low, tc_high;
   // For the rest of the input raw_marks array
-  for (const [low, high] of raw_marks.slice(1)) {
+  for (const [low, high] of raw_marks.slice(1, end_idx)) {
     [tc_low, tc_high] = trimContext(low - c_rad, high + c_rad, tlen);
     [cur_low, cur_high] = cur_obj.context;
     if (tc_low <= cur_high) {
