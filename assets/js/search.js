@@ -32,6 +32,10 @@ async function initSearchIndex() {
       this.ref('revid');
       this.metadataWhitelist = ['position']
 
+      // Make the ranking "softer" for local hot words and document length.
+      this.k1(1.05);
+      this.b(0.6);
+
       pagesIndex.forEach((page) => this.add(page));
     });
     document.dispatchEvent(new CustomEvent('indexed'));
