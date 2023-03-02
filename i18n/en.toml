@@ -5,10 +5,10 @@
   other = 'Continue reading'
 
 [published_on]
-  other = 'Published on'
+  other = ''
 
 [updated_on]
-  other = 'Updated on'
+  other = 'updated:'
 
 [latest_publications]
   other = 'Latest publications'
