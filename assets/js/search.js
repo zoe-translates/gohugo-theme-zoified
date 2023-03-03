@@ -522,8 +522,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  initSearchIndex();
+
   // Intercept form submission.
   searchForm.addEventListener('submit', inputEventHandler);
+
+  enableForm();
 });
 
 // Handle search input passed from URL query part.
@@ -538,6 +542,3 @@ document.addEventListener('indexed', () => {
     SINPUT.value = query;
   }
 });
-
-initSearchIndex();
-enableForm();

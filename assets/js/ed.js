@@ -45,8 +45,6 @@ function setupHypothes() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  setupBackToTop();
-  setupKbdMenuToggle();
-  setupHypothes();
-});
+setupBackToTop();
+setupKbdMenuToggle();
+setupHypothes();
