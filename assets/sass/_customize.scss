@@ -224,7 +224,6 @@ ul.tags-cloud {
 
   .tag-link {
     padding: 5px 5px 0;
-    @include transition(0.3s);
   }
 }
 
@@ -251,7 +250,7 @@ ul.tags-cloud {
   right: 1.5rem;
   z-index: 99;
 
-  @include transition(all 0.6s ease-in-out);
+  @include transition(all 0.4s ease-in-out);
 
   &:hover {
     text-decoration: none;
