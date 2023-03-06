@@ -516,24 +516,18 @@ function inputEventHandler(e) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initSearchIndex();
+});
+
+document.addEventListener('indexed', () => {
   const searchForm = document.getElementById('search-form');
 
   if (searchForm === null || SINPUT === null) {
     return;
   }
 
-  initSearchIndex();
-
-  // Intercept form submission.
-  searchForm.addEventListener('submit', inputEventHandler);
-
-  enableForm();
-});
-
-// Handle search input passed from URL query part.
-document.addEventListener('indexed', () => {
+  // Handle search input passed from URL query part.
   const query = urlEmulate.q;
-
   if (query) {
     const pnQuery = preNormalizeInput(query);
     if (pnQuery) {
@@ -541,4 +535,9 @@ document.addEventListener('indexed', () => {
     }
     SINPUT.value = query;
   }
+
+  // Intercept form submission.
+  searchForm.addEventListener('submit', inputEventHandler);
+
+  enableForm();
 });
