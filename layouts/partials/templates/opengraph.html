@@ -1,5 +1,5 @@
-{{/* Open Graph metadata */}}
-    <meta property="og:title" content="{{ partial "title.html" . }}">
+{{- /* Open Graph metadata */}}
+    <meta property="og:title" content="{{- if .IsPage -}}{{- .Title -}}{{- else -}}{{- partial "title.html" . -}}{{- end -}}">
     <meta property="og:description" content="{{ (partial "description.html" . ) }}">
     <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
     <meta property="og:url" content="{{ .Permalink }}">

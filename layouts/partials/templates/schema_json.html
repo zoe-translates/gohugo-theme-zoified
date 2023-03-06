@@ -1,5 +1,5 @@
-{{- if .IsHome }}
+{{- if .IsHome -}}
     {{- partial "schema.org/website.html" . }}
-{{- else if and .IsPage (not .Params.private) }}
+{{- else if and .IsPage (not .Params.private) -}}
     {{- partial "schema.org/article.html" . }}
-{{- end }}
+{{- end -}}
