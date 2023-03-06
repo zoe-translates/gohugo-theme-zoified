@@ -23,10 +23,6 @@
         </a>
         {{- end }}
 
-        {{- if ne .Params.annotations false }}
-        {{ partial "hypothesis.html" . }}
-        {{- end }}
-
         {{- with site.Menus.feeds }}
         <ul class="sidebar-nav-item sidebar-feed-list">
                 {{- range site.Menus.feeds -}}
