@@ -737,12 +737,15 @@ ul.poetry {
   padding-left: 10rem;
 }
 
-.byline {
-  font-style: italic;
+.byline, .byline-zh {
   font-size: 95%;
   margin-top: -.5rem;
   margin-bottom: 1rem;
   line-height: 1.2;
+}
+
+.byline {
+  font-style: italic;
 }
 
 /* Expose text to assistive tech but not sighted reader */
