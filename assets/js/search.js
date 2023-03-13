@@ -212,7 +212,9 @@ function updateSearchResults(query, results) {
     // Title with hyperlink to the page with hits.
     const title_link = article_node.querySelector('a');
     _fill_with_text(title_link, hit.title, minfo.title);
-    title_link.href = hit.href;
+    // Turn the relative permalink into permalinks, to indicate this is a
+    // permalink.
+    title_link.href = new URL(hit.href, location.origin).href;
 
     // Date is not a search field, simply add text.
     const date_span = article_node.querySelector('.tm-date');
