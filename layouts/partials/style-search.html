@@ -1,0 +1,16 @@
+{{- $sass_opt := (dict "enableSourceMap" false "outputStyle" "compressed" "targetPath" "css/search.css") -}}
+{{- if (not hugo.IsProduction) -}}
+{{- $sass_opt = $sass_opt | merge (dict "enableSourceMap" true) -}}
+{{- end -}}
+
+{{- $search_style := resources.Get "sass/search.scss" | resources.ToCSS $sass_opt -}}
+{{- if hugo.IsProduction -}}
+  {{- $search_style = minify $search_style -}}
+{{- end -}}
+
+{{- if not site.Params.assets.disable_fingerprinting -}}
+  {{- $search_style = $search_style | fingerprint -}}
+  {{ printf `<link href="%s" integrity="%s" rel="stylesheet">` $search_style.RelPermalink $search_style.Data.Integrity | safeHTML }}
+{{- else -}}
+  <link href="{{ $search_style.RelPermalink }}" rel="stylesheet">
+{{- end -}}

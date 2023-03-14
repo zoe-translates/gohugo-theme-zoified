@@ -158,6 +158,12 @@ form input:-moz-ui-invalid {
   background-color: rgb(255, 255, 84);
 }
 
+.ell {
+  word-spacing: 0.15ch;
+  padding: 0 0.25ch;
+  color: $rubric-color;
+}
+
 .search-help-details {
   display: block;
   margin: 0.25rem;
