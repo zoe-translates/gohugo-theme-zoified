@@ -151,6 +151,7 @@ function enableForm() {
   if (b) {
     b.removeAttribute("disabled");
   }
+  SINPUT.removeAttribute("placeholder");
 }
 
 function showErrorMessage(message) {

@@ -102,7 +102,7 @@ form input:-moz-ui-invalid {
   margin-top: 8px;
 }
 
-@include input-placeholder(#ABB7B7, 15%);
+@include input-placeholder($text-color, 10%);
 
 .contact-form-textarea {
   font-size: 1.1em;
@@ -148,6 +148,10 @@ form input:-moz-ui-invalid {
     @include interactive-text-deco(true);
     background: scale-color(#2c6982, $lightness: 10%);
   }
+}
+
+.form-input[readonly], #search-act[disabled], #search-act[disabled]:hover {
+  cursor: wait;
 }
 
 .search-hit {
