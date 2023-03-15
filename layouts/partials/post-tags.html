@@ -1,3 +1,3 @@
 {{- $tags := .Params.Tags | default slice -}}
 {{- $tlen := len $tags -}}
-{{- i18n "tag_prompt" $tlen -}}:<ul class="min-post-tags">{{- range $index, $name := sort $tags -}}<li><a href="{{ (printf "/tags/%s/" $name) | urlize }}">{{ $name | markdownify -}}</a></li>{{ end -}}</ul>
+{{- i18n "tag_prompt" $tlen -}}:<ul class="min-post-tags">{{- range $index, $name := sort $tags -}}<li><a href="{{ (printf "/tags/%s/" $name) | urlize }}" rel="tag">{{ $name | markdownify -}}</a></li>{{ end -}}</ul>
