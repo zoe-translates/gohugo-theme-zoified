@@ -521,7 +521,6 @@ function inputEventHandler(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
   initSearchIndex();
-  document.getElementById("site-search").classList.remove("hide-element");
 });
 
 document.addEventListener('indexed', () => {

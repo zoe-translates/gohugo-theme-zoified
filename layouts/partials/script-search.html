@@ -1,3 +1,12 @@
+{{- /* Un-hide the JS search form */ -}}
+{{- $unhide := resources.Get "js/show-search.js" | js.Build (dict "format" "iife" "minify" hugo.IsProduction "target" "es2017") -}}
+{{- if or (site.Params.assets.disable_fingerprinting) (not hugo.IsProduction) }}
+    <script src="{{ $unhide.RelPermalink }}" defer></script>
+{{- else -}}
+    {{- $unhide = $unhide | fingerprint }}
+    <script src="{{ $unhide.RelPermalink }}" integrity="{{ $unhide.Data.Integrity }}" defer></script>
+{{- end -}}
+
 {{- /* Add lunr.js. */ -}}
 {{- $lunrSearch := slice (resources.Get "js/vendor/lunr.js") -}}
 
