@@ -79,6 +79,7 @@ const SINPUT = document.getElementById('search');
 let _handledquery;  // Previously handled query input to handleSearchQuery()
 let _lastbad = false;
 
+// The actual hard-computing search query route.
 function handleSearchQuery(query) {
   SR_REGION.ariaBusy = "true";
   SR_REGION.setAttribute("aria-busy", "true");
@@ -472,39 +473,61 @@ function preNormalizeInput(str) {
                      .toLowerCase();  // Normalize case
 }
 
+// The original (static) title.
+const origTitle = document.title;
+
+function setPageTitle(value) {
+  document.title = value.length ? origTitle.replace(/^.+ -/, `${JSON.stringify(value)} at`) : origTitle;
+}
+
+// "Realize" the page from history without reloading the page. This "pulls" the
+// query info from the history state, and compute the search results and title.
+// This should only be called in the popstate handler.
+function reifyHistory(e) {
+  const term = e.state ? e.state : "";
+  justSearch(preNormalizeInput(term));
+  SINPUT.value = term;
+  setPageTitle(term);
+}
+
+// "Push" the current search state into the window history and title to emulate
+// browsing with a search engine.
+function syncURLTitle(term, searchParams) {
+  window.history.pushState(term, '',
+    term ? `${location.pathname}?${searchParams}` : `${location.pathname}`);
+  // Note: title must be set after the history push.
+  setPageTitle(term);
+}
+
 // Emulate the URL change of search action.
 const urlEmulate = new Proxy(new URLSearchParams(location.search), {
   get: (searchParams, prop) => searchParams.get(prop),
   set: (searchParams, prop, value) => {
     searchParams.set(prop, value);
-    window.history.replaceState({}, '', `${location.pathname}?${searchParams}`)
+    if (prop === "q") {
+      syncURLTitle(value, searchParams);
+    }
     return true;
   },
   deleteProperty: (searchParams, prop) => {
     searchParams.delete(prop);
-    window.history.replaceState({}, '', `${location.pathname}`)
+    if (prop === "q") {
+      syncURLTitle("", searchParams);
+    }
     return true;
   }
 });
 
-function searchSubmitEventHandler(e) {
-  e.preventDefault();
+// "Just" run the search (i.e. compute results and update page) without any
+// other side-effects to the window history and title.
+// NOTE: Expect a "clean" (pre-normalized) input.
+function justSearch(query) {
   // If input empty, output should be empty (made hidden) too.
-  if (!SINPUT.value) {
-    hideErrorMessage();
-    hideSearchResults();
-    delete urlEmulate.q;
-    return;
-  }
-  // Pre-normalize input to intercept trivial modifications such as
-  // adding/removing space characters.
-  const query = preNormalizeInput(SINPUT.value);
   if (!query) {
     hideErrorMessage();
     hideSearchResults();
     return;
   }
-  // If after pre-norm the query stays the same as last-handled.
   if (query === _handledquery) {
     // Result is either "bad" (error) or "not bad" (with results) -- ensured by
     // the actual query function. Here we simulate this by selectively display
@@ -516,10 +539,25 @@ function searchSubmitEventHandler(e) {
     }
     return;
   }
-
   // Actual, long code-path doing a real search.
   handleSearchQuery(query);
-  urlEmulate.q = SINPUT.value;
+}
+
+function searchSubmitEventHandler(e) {
+  e.preventDefault();
+  // Pre-normalize input to intercept trivial modifications such as
+  // adding/removing space characters.
+  const query = preNormalizeInput(SINPUT.value);
+  justSearch(query);
+
+  // NOTE: History will be pushed via urlEmulate proxy.
+  // The search parameter will always follow the "raw" input.
+  if (!SINPUT.value) {
+    delete urlEmulate.q;
+  }
+  else {
+    urlEmulate.q = SINPUT.value;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -534,17 +572,25 @@ document.addEventListener('indexed', () => {
   }
 
   // Handle search input passed from URL query part.
-  const query = urlEmulate.q;
-  if (query) {
-    const pnQuery = preNormalizeInput(query);
+  const rawQuery = urlEmulate.q;
+  if (rawQuery) {
+    const pnQuery = preNormalizeInput(rawQuery);
     if (pnQuery) {
+      // No need to call justSearch(); As the first query we can go directly to
+      // the substantial path.
       handleSearchQuery(pnQuery);
     }
-    SINPUT.value = query;
+    // Special case for window syncing.
+    SINPUT.value = rawQuery;
+    // NOTE! Without this replacement, the first state will be null.
+    window.history.replaceState(rawQuery, '', "");
+    setPageTitle(rawQuery);
   }
 
   // Intercept form submission.
   searchForm.addEventListener('submit', searchSubmitEventHandler);
-
+  // The form is now ready for interaction.
   enableForm();
+  // And therefore we can use our own implementation of history.
+  window.addEventListener("popstate", reifyHistory);
 });
