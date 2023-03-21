@@ -1,3 +1,4 @@
+"use strict";
 import {searchConfig, i18n} from '@params';
 
 let pagesIndex, searchIndex;
@@ -477,10 +478,12 @@ const urlEmulate = new Proxy(new URLSearchParams(location.search), {
   set: (searchParams, prop, value) => {
     searchParams.set(prop, value);
     window.history.replaceState({}, '', `${location.pathname}?${searchParams}`)
+    return true;
   },
   deleteProperty: (searchParams, prop) => {
     searchParams.delete(prop);
     window.history.replaceState({}, '', `${location.pathname}`)
+    return true;
   }
 });
 
