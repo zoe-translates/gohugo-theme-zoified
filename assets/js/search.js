@@ -1,6 +1,23 @@
 "use strict";
 import {searchConfig, i18n} from '@params';
 
+// See https://lunrjs.com/guides/customising.html#pipeline-functions
+const RE_DIA = new RegExp(/[\u0300-\u036f]/g);
+
+function _dediac(str) {
+  return str.normalize("NFD").replace(RE_DIA, "");
+}
+
+function normalizeDiac(builder) {
+  function pipelineFunction(token) {
+    let s = token.toString();
+    return token.update(() => _dediac(s));
+  };
+  lunr.Pipeline.registerFunction(pipelineFunction, "normalizeDiac");
+  builder.pipeline.before(lunr.stemmer, pipelineFunction);
+  // Not necessary to add this to search input pipeline.
+}
+
 let pagesIndex, searchIndex;
 
 async function initSearchIndex() {
@@ -45,22 +62,7 @@ async function initSearchIndex() {
   }
 }
 
-// See https://lunrjs.com/guides/customising.html#pipeline-functions
-const RE_DIA = new RegExp(/[\u0300-\u036f]/g);
-
-function _dediac(str) {
-  return str.normalize("NFD").replace(RE_DIA, "");
-}
-
-function normalizeDiac(builder) {
-  function pipelineFunction(token) {
-    let s = token.toString();
-    return token.update(() => _dediac(s));
-  };
-  lunr.Pipeline.registerFunction(pipelineFunction, "normalizeDiac");
-  builder.pipeline.before(lunr.stemmer, pipelineFunction);
-  // Not necessary to add this to search input pipeline.
-}
+initSearchIndex();
 
 // Fixed elements by ID
 const ITEM_PROTO = document.getElementById('search-display-tpl')
@@ -559,10 +561,6 @@ function searchSubmitEventHandler(e) {
     urlEmulate.q = SINPUT.value;
   }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  initSearchIndex();
-});
 
 document.addEventListener('indexed', () => {
   const searchForm = document.getElementById('search-form');
