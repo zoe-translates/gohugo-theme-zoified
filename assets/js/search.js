@@ -487,7 +487,7 @@ const urlEmulate = new Proxy(new URLSearchParams(location.search), {
   }
 });
 
-function inputEventHandler(e) {
+function searchSubmitEventHandler(e) {
   e.preventDefault();
   // If input empty, output should be empty (made hidden) too.
   if (!SINPUT.value) {
@@ -544,7 +544,7 @@ document.addEventListener('indexed', () => {
   }
 
   // Intercept form submission.
-  searchForm.addEventListener('submit', inputEventHandler);
+  searchForm.addEventListener('submit', searchSubmitEventHandler);
 
   enableForm();
 });
