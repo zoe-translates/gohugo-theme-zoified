@@ -5,7 +5,7 @@ let pagesIndex, searchIndex;
 // Returns promise resolving to the data as JSON.
 const doIndex = fetch(searchConfig.indexURI).then((response) => {
                        if (response.ok) return response.json();
-                       throw new Error("fetch response not ok");
+                       return Promise.reject("Fetch response not ok");
                      });
 
 // See https://lunrjs.com/guides/customising.html#pipeline-functions
@@ -555,9 +555,6 @@ doIndex.then((data) => {
 
   // Set up the search-ui.
   const searchForm = document.getElementById('search-form');
-  if (searchForm === null || SINPUT === null) {
-    throw new Error("Incomplete DOM");
-  }
 
   // Handle search input passed from URL query part.
   const rawQuery = urlEmulate.q;
@@ -583,5 +580,5 @@ doIndex.then((data) => {
   window.addEventListener("popstate", reifyHistory);
 }).catch((err) => {
   showErrorMessage("Error: Failed to load search data. Try reloading page?");
-  console.log(err);
+  console.error(err);
 });
