@@ -1,5 +1,9 @@
+{{- $jsOpts := dict "format" "iife" "minify" hugo.IsProduction "target" "es2017" -}}
+{{- if (not hugo.IsProduction) -}}
+  {{- $jsOpts = $jsOpts | merge (dict "sourceMap" "external") -}}
+{{- end -}}
 {{- /* Un-hide the JS search form */ -}}
-{{- $unhide := resources.Get "js/show-search.js" | js.Build (dict "format" "iife" "minify" hugo.IsProduction "target" "es2017") -}}
+{{- $unhide := resources.Get "js/show-search.js" | js.Build $jsOpts -}}
 {{- if or (site.Params.assets.disable_fingerprinting) (not hugo.IsProduction) }}
     <script src="{{ $unhide.RelPermalink }}" defer></script>
 {{- else -}}
@@ -28,11 +32,10 @@
 
 {{- end -}}
 
-{{- /* Build lunr. */ -}}
+{{- /* Build lunr - don't do js.Build. */ -}}
 {{- $lunrSearch = $lunrSearch | resources.Concat "js/lunr-bundle.js" -}}
-
 {{- if hugo.IsProduction -}}
-    {{- $lunrSearch = $lunrSearch | minify -}}
+  {{- $lunrSearch = minify $lunrSearch -}}
 {{- end -}}
 
 {{- if or (site.Params.assets.disable_fingerprinting) (not hugo.IsProduction) }}
@@ -53,7 +56,7 @@
 {{- $siteSearch = $siteSearch | append (resources.Get "js/search.js") -}}
 {{- $siteSearch = $siteSearch | resources.Concat "js/search-bundle.js" -}}
 
-{{- $siteSearch = $siteSearch | js.Build (dict "format" "iife" "minify" hugo.IsProduction "target" "es2017" "params" $searchParams) -}}
+{{- $siteSearch = $siteSearch | js.Build (merge $jsOpts (dict "params" $searchParams)) -}}
 
 {{- if or (site.Params.assets.disable_fingerprinting) (not hugo.IsProduction) }}
     <script src="{{ $siteSearch.RelPermalink }}" defer></script>

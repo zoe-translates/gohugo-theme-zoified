@@ -1,7 +1,5 @@
-{{- $scripts := slice -}}
-{{- $scripts = $scripts | append (resources.Get "js/ed.js") -}}
-{{- $scripts = $scripts | resources.Concat "js/common.js" -}}
-{{- $bdopts := dict "format" "iife" "target" "es2017" "minify" hugo.IsProduction -}}
+{{- $scripts := resources.Get "js/ed.js" -}}
+{{- $bdopts := dict "format" "iife" "targetPath" "js/common.js" "target" "es2017" "minify" hugo.IsProduction -}}
 {{- $scripts = $scripts | js.Build $bdopts -}}
 
 {{- if or (site.Params.assets.disable_fingerprinting) (not hugo.IsProduction) }}
