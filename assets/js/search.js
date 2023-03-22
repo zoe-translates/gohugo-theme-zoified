@@ -1,9 +1,15 @@
 "use strict";
 import {searchConfig, i18n} from '@params';
+// Fetch data, use later.
+let pagesIndex, searchIndex;
+// Returns promise resolving to the data as JSON.
+const doIndex = fetch(searchConfig.indexURI).then((response) => {
+                       if (response.ok) return response.json();
+                       throw new Error("fetch response not ok");
+                     });
 
 // See https://lunrjs.com/guides/customising.html#pipeline-functions
 const RE_DIA = new RegExp(/[\u0300-\u036f]/g);
-
 function _dediac(str) {
   return str.normalize("NFD").replace(RE_DIA, "");
 }
@@ -17,52 +23,6 @@ function normalizeDiac(builder) {
   builder.pipeline.before(lunr.stemmer, pipelineFunction);
   // Not necessary to add this to search input pipeline.
 }
-
-let pagesIndex, searchIndex;
-
-async function initSearchIndex() {
-  try {
-    const response = await fetch(searchConfig.indexURI);
-
-    if (!response.ok) return;
-
-    pagesIndex = await response.json();
-
-    // Create the lunr index for the search
-    searchIndex = lunr(function () { // eslint-disable-line no-undef
-      // Set up the pipeline for indexing content in multiple languages
-      if (Array.isArray(searchConfig.lunrLanguages)) {
-        let langs = new Set();
-        searchConfig.lunrLanguages.forEach(item => langs.add(item));
-        langs.add('en');
-        const pipeline = lunr.multiLanguage( // eslint-disable-line no-undef
-          ...langs
-        );
-
-        this.use(pipeline);
-      }
-      this.use(normalizeDiac);
-
-      this.field('author');
-      this.field('title');
-      this.field('content');
-
-      this.ref('revid');
-      this.metadataWhitelist = ['position']
-
-      // Make the ranking "softer" for local hot words and document length.
-      this.k1(1.05);
-      this.b(0.6);
-
-      pagesIndex.forEach((page) => this.add(page));
-    });
-    document.dispatchEvent(new CustomEvent('indexed'));
-  } catch (e) {
-    console.log(e); // eslint-disable-line no-console
-  }
-}
-
-initSearchIndex();
 
 // Fixed elements by ID
 const ITEM_PROTO = document.getElementById('search-display-tpl')
@@ -80,7 +40,6 @@ const SINPUT = document.getElementById('search');
 
 let _handledquery;  // Previously handled query input to handleSearchQuery()
 let _lastbad = false;
-
 // The actual hard-computing search query route.
 function handleSearchQuery(query) {
   SR_REGION.ariaBusy = "true";
@@ -562,11 +521,42 @@ function searchSubmitEventHandler(e) {
   }
 }
 
-document.addEventListener('indexed', () => {
-  const searchForm = document.getElementById('search-form');
+// Execute everything after JSON search-index data loaded.
+doIndex.then((data) => {
+  pagesIndex = data;
+  // Create the lunr index for the search
+  searchIndex = lunr(function () { // eslint-disable-line no-undef
+    // Set up the pipeline for indexing content in multiple languages
+    if (Array.isArray(searchConfig.lunrLanguages)) {
+      let langs = new Set();
+      searchConfig.lunrLanguages.forEach(item => langs.add(item));
+      langs.add('en');
+      const pipeline = lunr.multiLanguage( // eslint-disable-line no-undef
+        ...langs
+      );
 
+      this.use(pipeline);
+    }
+    this.use(normalizeDiac);
+
+    this.field('author');
+    this.field('title');
+    this.field('content');
+
+    this.ref('revid');
+    this.metadataWhitelist = ['position']
+
+    // Make the ranking "softer" for local hot words and document length.
+    this.k1(1.05);
+    this.b(0.6);
+
+    pagesIndex.forEach((page) => this.add(page));
+  });
+
+  // Set up the search-ui.
+  const searchForm = document.getElementById('search-form');
   if (searchForm === null || SINPUT === null) {
-    return;
+    throw new Error("Incomplete DOM");
   }
 
   // Handle search input passed from URL query part.
@@ -591,4 +581,7 @@ document.addEventListener('indexed', () => {
   enableForm();
   // And therefore we can use our own implementation of history.
   window.addEventListener("popstate", reifyHistory);
+}).catch((err) => {
+  showErrorMessage("Error: Failed to load search data. Try reloading page?");
+  console.log(err);
 });
