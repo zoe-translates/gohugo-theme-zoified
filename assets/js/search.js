@@ -2,7 +2,9 @@
 import {searchConfig, i18n} from '@params';
 // Fetch data, use later.
 let pagesIndex, searchIndex;
-// Returns promise resolving to the data as JSON.
+// Returns promise resolving to the data as JSON. This will start the actual
+// fetch I/O "almost immediately" outside JS thread, and the synchron JS code
+// below will not wait for the fetch.
 const doIndex = fetch(searchConfig.indexURI).then((response) => {
                        if (response.ok) return response.json();
                        return Promise.reject("Fetch response not ok");
@@ -521,7 +523,28 @@ function searchSubmitEventHandler(e) {
   }
 }
 
+// Get search input passed from URL query part and update DOM/history/title with
+// it.
+function processURLQuery () {
+  const rawQuery = urlEmulate.q;
+  if (rawQuery) {
+    const pnQuery = preNormalizeInput(rawQuery);
+    if (pnQuery) {
+      // No need to call justSearch(); This function is going to be called only
+      // once and as the first query we can go directly to the substantial path.
+      handleSearchQuery(pnQuery);
+    }
+    // Special case for window syncing.
+    SINPUT.value = rawQuery;
+    // NOTE! Without this replacement, the first state will be null.
+    window.history.replaceState(rawQuery, '', "");
+    setPageTitle(rawQuery);
+  }
+}
+
 // Execute everything after JSON search-index data loaded.
+// NOTE: This pure-JS then-handler will run after the IIFE for this file
+// returns.
 doIndex.then((data) => {
   pagesIndex = data;
   // Create the lunr index for the search
@@ -552,32 +575,21 @@ doIndex.then((data) => {
 
     pagesIndex.forEach((page) => this.add(page));
   });
+  // Search is now ready.
 
-  // Set up the search-ui.
-  const searchForm = document.getElementById('search-form');
+  // Handle any search input passed from URL query part.
+  processURLQuery();
 
-  // Handle search input passed from URL query part.
-  const rawQuery = urlEmulate.q;
-  if (rawQuery) {
-    const pnQuery = preNormalizeInput(rawQuery);
-    if (pnQuery) {
-      // No need to call justSearch(); As the first query we can go directly to
-      // the substantial path.
-      handleSearchQuery(pnQuery);
-    }
-    // Special case for window syncing.
-    SINPUT.value = rawQuery;
-    // NOTE! Without this replacement, the first state will be null.
-    window.history.replaceState(rawQuery, '', "");
-    setPageTitle(rawQuery);
-  }
+  // And we can put our own implementation of history to use for
+  // subsequent user interactions.
+  window.addEventListener("popstate", reifyHistory);
 
-  // Intercept form submission.
-  searchForm.addEventListener('submit', searchSubmitEventHandler);
+  // Set up the search-ui to intercept form submission.
+  document.getElementById('search-form')
+          .addEventListener('submit', searchSubmitEventHandler);
+
   // The form is now ready for interaction.
   enableForm();
-  // And therefore we can use our own implementation of history.
-  window.addEventListener("popstate", reifyHistory);
 }).catch((err) => {
   showErrorMessage("Error: Failed to load search data. Try reloading page?");
   console.error(err);
