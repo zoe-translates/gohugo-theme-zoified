@@ -5,10 +5,7 @@ let pagesIndex, searchIndex;
 // Returns promise resolving to the data as JSON. This will start the actual
 // fetch I/O "almost immediately" outside JS thread, and the synchron JS code
 // below will not wait for the fetch.
-const doIndex = fetch(searchConfig.indexURI).then((response) => {
-                       if (response.ok) return response.json();
-                       return Promise.reject("Fetch response not ok");
-                     });
+const requestIndex = fetch(searchConfig.indexURI);
 
 // See https://lunrjs.com/guides/customising.html#pipeline-functions
 const RE_DIA = new RegExp(/[\u0300-\u036f]/g);
@@ -545,52 +542,57 @@ function processURLQuery () {
 // Execute everything after JSON search-index data loaded.
 // NOTE: This pure-JS then-handler will run after the IIFE for this file
 // returns.
-doIndex.then((data) => {
-  pagesIndex = data;
-  // Create the lunr index for the search
-  searchIndex = lunr(function () { // eslint-disable-line no-undef
-    // Set up the pipeline for indexing content in multiple languages
-    if (Array.isArray(searchConfig.lunrLanguages)) {
-      let langs = new Set();
-      searchConfig.lunrLanguages.forEach(item => langs.add(item));
-      langs.add('en');
-      const pipeline = lunr.multiLanguage( // eslint-disable-line no-undef
-        ...langs
-      );
+requestIndex
+  .then((response) => {
+    if (response.ok) return response.json();
+    return Promise.reject("Fetch response not ok");
+  })
+  .then((data) => {
+    pagesIndex = data;
+    // Create the lunr index for the search
+    searchIndex = lunr(function () { // eslint-disable-line no-undef
+      // Set up the pipeline for indexing content in multiple languages
+      if (Array.isArray(searchConfig.lunrLanguages)) {
+        let langs = new Set();
+        searchConfig.lunrLanguages.forEach(item => langs.add(item));
+        langs.add('en');
+        const pipeline = lunr.multiLanguage( // eslint-disable-line no-undef
+          ...langs
+        );
 
-      this.use(pipeline);
-    }
-    this.use(normalizeDiac);
+        this.use(pipeline);
+      }
+      this.use(normalizeDiac);
 
-    this.field('author');
-    this.field('title');
-    this.field('content');
+      this.field('author');
+      this.field('title');
+      this.field('content');
 
-    this.ref('revid');
-    this.metadataWhitelist = ['position']
+      this.ref('revid');
+      this.metadataWhitelist = ['position']
 
-    // Make the ranking "softer" for local hot words and document length.
-    this.k1(1.05);
-    this.b(0.6);
+      // Make the ranking "softer" for local hot words and document length.
+      this.k1(1.05);
+      this.b(0.6);
 
-    pagesIndex.forEach((page) => this.add(page));
+      pagesIndex.forEach((page) => this.add(page));
+    });
+    // Search is now ready.
+
+    // Handle any search input passed from URL query part.
+    processURLQuery();
+
+    // And we can put our own implementation of history to use for
+    // subsequent user interactions.
+    window.addEventListener("popstate", reifyHistory);
+
+    // Set up the search-ui to intercept form submission.
+    document.getElementById('search-form')
+      .addEventListener('submit', searchSubmitEventHandler);
+
+    // The form is now ready for interaction.
+    enableForm();
+  }).catch((err) => {
+    showErrorMessage("Error: Failed to load search data. Try reloading page?");
+    console.error(err);
   });
-  // Search is now ready.
-
-  // Handle any search input passed from URL query part.
-  processURLQuery();
-
-  // And we can put our own implementation of history to use for
-  // subsequent user interactions.
-  window.addEventListener("popstate", reifyHistory);
-
-  // Set up the search-ui to intercept form submission.
-  document.getElementById('search-form')
-          .addEventListener('submit', searchSubmitEventHandler);
-
-  // The form is now ready for interaction.
-  enableForm();
-}).catch((err) => {
-  showErrorMessage("Error: Failed to load search data. Try reloading page?");
-  console.error(err);
-});
