@@ -7,6 +7,8 @@ let pagesIndex, searchIndex;
 // below will not wait for the fetch.
 const requestIndex = fetch(searchConfig.indexURI);
 
+document.getElementById("site-search").classList.remove("hide-element");
+
 // See https://lunrjs.com/guides/customising.html#pipeline-functions
 const RE_DIA = new RegExp(/[\u0300-\u036f]/g);
 function _dediac(str) {
