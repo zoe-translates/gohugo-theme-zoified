@@ -430,7 +430,7 @@ function processContentHighlight(text, raw_marks, c_rad = 45) {
 
 function preNormalizeInput(str) {
   return _dediac(str).split(/\s/)
-                     .filter((e) => !!e)
+                     .filter(Boolean)
                      .join(" ")  // Remove extra whitespace
                      .toLowerCase();  // Normalize case
 }
@@ -444,7 +444,7 @@ function setPageTitle(value) {
 
 // "Realize" the page from history without reloading the page. This "pulls" the
 // query info from the history state, and compute the search results and title.
-// This should only be called in the popstate handler.
+// This should only be called as the popstate handler.
 function reifyHistory(e) {
   const term = e.state ? e.state : "";
   justSearch(preNormalizeInput(term));
@@ -594,7 +594,8 @@ requestIndex
 
     // The form is now ready for interaction.
     enableForm();
-  }).catch((err) => {
+  })
+  .catch((err) => {
     showErrorMessage("Error: Failed to load search data. Try reloading page?");
     console.error(err);
   });
