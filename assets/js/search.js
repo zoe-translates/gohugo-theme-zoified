@@ -1,28 +1,17 @@
 "use strict";
 import {searchConfig, i18n} from '@params';
-// Fetch data, use later.
 let pagesIndex, searchIndex;
-// Returns promise resolving to the data as JSON. This will start the actual
-// fetch I/O "almost immediately" outside JS thread, and the synchron JS code
-// below will not wait for the fetch.
+
+// Fetch data, use later.
 const requestIndex = fetch(searchConfig.indexURI);
 
+// Display the JS search form.
 document.getElementById("site-search").classList.remove("hide-element");
 
 // See https://lunrjs.com/guides/customising.html#pipeline-functions
 const RE_DIA = new RegExp(/[\u0300-\u036f]/g);
-function _dediac(str) {
+function normalizeDiac(str) {
   return str.normalize("NFD").replace(RE_DIA, "");
-}
-
-function normalizeDiac(builder) {
-  function pipelineFunction(token) {
-    let s = token.toString();
-    return token.update(() => _dediac(s));
-  };
-  lunr.Pipeline.registerFunction(pipelineFunction, "normalizeDiac");
-  builder.pipeline.before(lunr.stemmer, pipelineFunction);
-  // Not necessary to add this to search input pipeline.
 }
 
 // Fixed elements by ID
@@ -43,23 +32,27 @@ let _handledquery;  // Previously handled query input to handleSearchQuery()
 let _lastbad = false;
 // The actual hard-computing search query route.
 function handleSearchQuery(query) {
-  SR_REGION.ariaBusy = "true";
-  SR_REGION.setAttribute("aria-busy", "true");
+  makeBusy();
   const results = searchSite(query);
   _handledquery = query;
   if (!results.length) {
     _lastbad = true;
     showErrorMessage(i18n.noResults);
     hideSearchResults();
-    SR_REGION.ariaBusy = "false";
-    SR_REGION.setAttribute("aria-busy", "false");
+    makeUnBusy();
     return;
   }
   _lastbad = false;
   hideErrorMessage();
-  renderSearchResults(query, results);
-  SR_REGION.ariaBusy = "false";
-  SR_REGION.setAttribute("aria-busy", "false");
+  // Purge any existing display of search results;
+  SRES_B.textContent = '';
+  SRES_COUNT.textContent = '';
+
+  // Update DOM with view of new search results
+  updateSearchResults(query, results);
+
+  showSearchResults();
+  makeUnBusy();
 }
 
 function searchSite(query) {
@@ -68,50 +61,45 @@ function searchSite(query) {
     return [];
   }
 
-  let results;
   try {
-    results = getSearchResults(lunrQuery);
-  } catch (e) {
+    return searchIndex.search(lunrQuery);
+  }
+  catch (e) {
     if (e instanceof lunr.QueryParseError) {
       return [];
     }
     throw e;
   }
-  return results;
-}
-
-function getSearchResults(query) {
-  if (typeof searchIndex === 'undefined') return [];
-
-  return searchIndex.search(query);
 }
 
 const RE_HAN = new RegExp("\\p{sc=Han}", "u");
 
-function _notTooShort(text) {
-  if (!RE_HAN.test(text)) {
-    if (text.startsWith("+") || text.startsWith("-")) {
-      return text.length > 2;
-    }
-    return text.length > 1;
+function termIsNotTooShort(text) {
+  if (RE_HAN.test(text)) {
+    return true;
   }
-  return true;
+  if (text.startsWith("+") || text.startsWith("-")) {
+    return text.length > 2;
+  }
+  return text.length > 1;
 }
 
 function getLunrSearchQuery(query) {
   // Filter out terms that are too short (one letter).
-  const searchTerms = query.split(' ').filter(_notTooShort);
+  const searchTerms = query.split(' ').filter(termIsNotTooShort);
   // If all of them starts with the minus, it is almost guaranteed there will be
   // too many hits.
-  if (searchTerms.every((w) => w.startsWith("-"))) {
+  if (searchTerms.every(w => w.startsWith("-"))) {
     return "";
   }
   return searchTerms.join(" ");
 }
 
+// UI updates.
+
 function enableForm() {
   SINPUT.removeAttribute("readonly");
-  const b = document.getElementById("search-act");
+  const b = document.getElementById("search-act"); // button
   if (b) {
     b.removeAttribute("disabled");
   }
@@ -126,9 +114,22 @@ function showErrorMessage(message) {
 }
 
 function hideErrorMessage() {
-  SF_CONTAINER.classList.remove('form-item-error');
   SERR_CONTAINER.classList.add('hide-element');
+  SF_CONTAINER.classList.remove('form-item-error');
   SERR_CONTENT.textContent = '';
+}
+
+// Compatibility could be a problem, because there's currently a lack of
+// consensus about certain details of ARIA reflection, such as the type of
+// ariaBusy property. Firefox hides reflection behind a config option.
+function makeBusy() {
+  SR_REGION.ariaBusy = "true";
+  SR_REGION.setAttribute("aria-busy", "true");
+}
+
+function makeUnBusy() {
+  SR_REGION.ariaBusy = "false";
+  SR_REGION.setAttribute("aria-busy", "false");
 }
 
 function showSearchResults() {
@@ -139,18 +140,24 @@ function hideSearchResults() {
   SRES_CONTAINER.classList.add('hide-element');
 }
 
-function renderSearchResults(query, results) {
-  clearSearchResults();
-  updateSearchResults(query, results);
-  showSearchResults();
+// Create a node in a <mark class="search-item"> element with the text as its
+// content.
+function newHighlight(text) {
+  const mark = MARK_PROTO.cloneNode(false);
+  mark.textContent = text;
+  return mark;
 }
 
-function clearSearchResults() {
-  SRES_B.textContent = '';
-  SRES_COUNT.textContent = '';
+const SPAN_PROTO = document.createElement("span");
+SPAN_PROTO.className = "ell";
+function newEllip(txt) {
+  const span = SPAN_PROTO.cloneNode(false);
+  span.textContent = txt;
+  return span;
 }
 
-function _fill_with_text(node, str, marks) {
+// Fill in the text content of a node with optional marks.
+function fillNodeWithText(node, str, marks) {
   const ts = [];
   if (marks) {
     addMarkedTextInto(ts, str, marks);
@@ -177,7 +184,7 @@ function updateSearchResults(query, results) {
     const article_node = ITEM_PROTO.cloneNode(true);
     // Title with hyperlink to the page with hits.
     const title_link = article_node.querySelector('a');
-    _fill_with_text(title_link, hit.title, minfo.title);
+    fillNodeWithText(title_link, hit.title, minfo.title);
     // Turn the relative permalink into permalinks, to indicate this is a
     // permalink.
     title_link.href = new URL(hit.href, location.origin).href;
@@ -188,7 +195,7 @@ function updateSearchResults(query, results) {
 
     // Author may be highlighted.
     const author_span = article_node.querySelector('.tm-author');
-    _fill_with_text(author_span, hit.author, minfo.author);
+    fillNodeWithText(author_span, hit.author, minfo.author);
 
     // Excerpt content
     const content_p = article_node.querySelector('.post-content');
@@ -198,7 +205,7 @@ function updateSearchResults(query, results) {
     } else {
       // The search-hit is not in content, create an excerpt anyway.
       const l = 100;  // NOTE: hard-coded.
-      const newl = _adjustForBound(hit.content, l, 0, -1);
+      const newl = adjustForBound(hit.content, l, 0, -1);
       ts = [hit.content.slice(0, newl)];
       if (hit.content.length > newl) {
         ts.push(newEllip(" …"));
@@ -272,22 +279,6 @@ function mergeIndices(arr) {
   return res;
 }
 
-// Create a node in a <mark class="search-item"> element with the text as its
-// content.
-function newHighlight(text) {
-  const mark = MARK_PROTO.cloneNode(false);
-  mark.textContent = text;
-  return mark;
-}
-
-const SPAN_PROTO = document.createElement("span");
-SPAN_PROTO.className = "ell";
-function newEllip(txt) {
-  const span = SPAN_PROTO.cloneNode(false);
-  span.textContent = txt;
-  return span;
-}
-
 // Mark the text str using <mark class="search-item">...</mark> at given
 // offsets. The array `marks` is an array of two-member arrays [low, high]
 // bracketing the marked part. Optionally, each bracket can be interpreted as if
@@ -348,13 +339,13 @@ function createMarkContext(text, raw_marks, c_rad) {
     }
   }
   res.forEach((cobj) => {
-    _cutAtWord(cobj, text);
+    cutAtWord(cobj, text);
   });
   return res;
 }
 
 const RE_LETT = new RegExp("[\\p{L}\\p{gc=Mark}\\p{gc=Connector_Punctuation}\\p{Join_Control}]", "u");
-function _adjustForBound(text, index, bound, step = 1) {
+function adjustForBound(text, index, bound, step = 1) {
   if ((index === 0 && step > 0) || (index === text.length && step < 0)
        || RE_HAN.test(text[index])) {
     return index;
@@ -364,7 +355,8 @@ function _adjustForBound(text, index, bound, step = 1) {
     if (RE_LETT.test(text[index]) && !RE_LETT.test(text[index - 1])) {
       return index;
     }
-  } else if (step < 0) {
+  }
+  else if (step < 0) {
     if (RE_LETT.test(text[index - 1]) && !RE_LETT.test(text[index])) {
       return index;
     }
@@ -392,11 +384,11 @@ function _adjustForBound(text, index, bound, step = 1) {
   return i + (step < 0);
 }
 
-function _cutAtWord(cobj, text) {
+function cutAtWord(cobj, text) {
   let n = cobj.context[0];
-  cobj.context[0] = _adjustForBound(text, n, cobj.mark[0][0]);
+  cobj.context[0] = adjustForBound(text, n, cobj.mark[0][0]);
   n = cobj.context[1];
-  cobj.context[1] = _adjustForBound(text, n, cobj.mark.at(-1)[1], -1);
+  cobj.context[1] = adjustForBound(text, n, cobj.mark.at(-1)[1], -1);
 }
 
 function trimContext(low, high, ub) {
@@ -429,17 +421,20 @@ function processContentHighlight(text, raw_marks, c_rad = 45) {
 }
 
 function preNormalizeInput(str) {
-  return _dediac(str).split(/\s/)
+  return normalizeDiac(str).split(/\s/)
                      .filter(Boolean)
                      .join(" ")  // Remove extra whitespace
                      .toLowerCase();  // Normalize case
 }
 
+// Update window view (history, title)
 // The original (static) title.
 const origTitle = document.title;
 
 function setPageTitle(value) {
-  document.title = value.length ? origTitle.replace(/^.+ -/, `${JSON.stringify(value)} at`) : origTitle;
+  document.title = (value.length
+    ? origTitle.replace(/^.+ -/, `( ${value} ) at`)
+    : origTitle);
 }
 
 // "Realize" the page from history without reloading the page. This "pulls" the
@@ -455,29 +450,34 @@ function reifyHistory(e) {
 // "Push" the current search state into the window history and title to emulate
 // browsing with a search engine.
 function syncURLTitle(term, searchParams) {
-  window.history.pushState(term, '',
-    term ? `${location.pathname}?${searchParams}` : `${location.pathname}`);
+  let s = `${searchParams}`;
+  s = s ? `?${s}` : s;
+  window.history.pushState(term, '', `${location.pathname}${s}`);
   // Note: title must be set after the history push.
   setPageTitle(term);
 }
 
 // Emulate the URL change of search action.
+// The parameters are normalized for case (currently only "q" is used). Setter
+// using falsy value is the same as delete.
 const urlEmulate = new Proxy(new URLSearchParams(location.search), {
-  get: (searchParams, prop) => searchParams.get(prop),
+  get: (searchParams, prop) => searchParams.get(prop.toLowerCase()),
   set: (searchParams, prop, value) => {
-    searchParams.set(prop, value);
+    prop = prop.toLowerCase();
+
+    if (!value) {
+      searchParams.delete(prop);
+    }
+    else {
+      searchParams.set(prop, value);
+    }
+
     if (prop === "q") {
       syncURLTitle(value, searchParams);
     }
     return true;
   },
-  deleteProperty: (searchParams, prop) => {
-    searchParams.delete(prop);
-    if (prop === "q") {
-      syncURLTitle("", searchParams);
-    }
-    return true;
-  }
+  // Delete not needed here in our code.
 });
 
 // "Just" run the search (i.e. compute results and update page) without any
@@ -501,7 +501,7 @@ function justSearch(query) {
     }
     return;
   }
-  // Actual, long code-path doing a real search.
+  // A new search, execute actual, long code-path doing a real search.
   handleSearchQuery(query);
 }
 
@@ -512,14 +512,9 @@ function searchSubmitEventHandler(e) {
   const query = preNormalizeInput(SINPUT.value);
   justSearch(query);
 
-  // NOTE: History will be pushed via urlEmulate proxy.
+  // NOTE: History/title will be pushed via urlEmulate proxy.
   // The search parameter will always follow the "raw" input.
-  if (!SINPUT.value) {
-    delete urlEmulate.q;
-  }
-  else {
-    urlEmulate.q = SINPUT.value;
-  }
+  urlEmulate.q = SINPUT.value;
 }
 
 // Get search input passed from URL query part and update DOM/history/title with
@@ -536,7 +531,7 @@ function processURLQuery () {
     // Special case for window syncing.
     SINPUT.value = rawQuery;
     // NOTE! Without this replacement, the first state will be null.
-    window.history.replaceState(rawQuery, '', "");
+    window.history.replaceState(rawQuery, "", ""); // empty url -> noop
     setPageTitle(rawQuery);
   }
 }
@@ -551,6 +546,16 @@ requestIndex
   })
   .then((data) => {
     pagesIndex = data;
+
+    function processDiac(builder) {
+      function pipelineFunction(token) {
+        return token.update(() => normalizeDiac(token.toString()));
+      };
+      lunr.Pipeline.registerFunction(pipelineFunction, "processDiac");
+      builder.pipeline.before(lunr.stemmer, pipelineFunction);
+      // Not necessary to add this to search *input* pipeline.
+    }
+
     // Create the lunr index for the search
     searchIndex = lunr(function () { // eslint-disable-line no-undef
       // Set up the pipeline for indexing content in multiple languages
@@ -564,7 +569,7 @@ requestIndex
 
         this.use(pipeline);
       }
-      this.use(normalizeDiac);
+      this.use(processDiac);
 
       this.field('author');
       this.field('title');
@@ -577,7 +582,7 @@ requestIndex
       this.k1(1.05);
       this.b(0.6);
 
-      pagesIndex.forEach((page) => this.add(page));
+      pagesIndex.forEach(page => this.add(page));
     });
     // Search is now ready.
 
