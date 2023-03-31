@@ -88,11 +88,6 @@
   }
 }
 
-.contact-form-input,
-.contact-form-textarea {
-  margin-top: 8px;
-}
-
 @include input-placeholder($text-color, 10%);
 
 .contact-form-textarea {
