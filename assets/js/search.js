@@ -6,7 +6,7 @@ let pagesIndex, searchIndex;
 const requestIndex = fetch(searchConfig.indexURI);
 
 // Display the JS search form.
-document.getElementById("site-search").classList.remove("hide-element");
+document.getElementById("search-app").classList.remove("hide-element");
 
 // See https://lunrjs.com/guides/customising.html#pipeline-functions
 const RE_DIA = new RegExp(/[\u0300-\u036f]/g);
