@@ -42,7 +42,7 @@
         "author": {
             "@type": "Person",
             "name": {{ htmlUnescape .Params.author }}
-        }
+        },
             {{- else if eq $authorType "[]string" }}
         "author": [
             {{ range $i, $author := .Params.author }}{{ if $i }},{{ end }}
@@ -62,7 +62,10 @@
             {{- end }}
         {{- end }}
         {{- if $trans }}
-        "translator": {{ htmlUnescape $trans }}
+        "translator": {
+            "@type": "Person",
+            "name": {{ htmlUnescape $trans }}
+        },
         {{- end }}
         "publisher": {
             "@type": "Organization",
